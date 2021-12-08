@@ -1,4 +1,4 @@
-const rpaRegex = require("../rpa_regexes");
+const rpaReg = require("../rpa_regexes");
 
 describe("times", () => {
     test.each([
@@ -14,8 +14,8 @@ describe("times", () => {
         ["1ah", undefined],
         ["h30", undefined],
     ])("time.exec('%s')?.[0]", (value, expected) => {
-        rpaRegex.time.lastIndex = 0;
-        const result = rpaRegex.time.exec(value)?.[0];
+        rpaReg.time.lastIndex = 0;
+        const result = rpaReg.getExecFirstMatch(rpaReg.time, value);
         expect(result).toBe(expected);
     });
 
@@ -40,8 +40,8 @@ describe("times", () => {
         ["1hàa2h", undefined],
         ["lundi à vendredi", undefined],
     ])("timeInterval.exec('%s')?.[0]", (value, expected) => {
-        rpaRegex.timeInterval.lastIndex = 0;
-        const result = rpaRegex.timeInterval.exec(value)?.[0];
+        rpaReg.timeInterval.lastIndex = 0;
+        const result = rpaReg.getExecFirstMatch(rpaReg.timeInterval, value);
         expect(result).toBe(expected);
     });
 
@@ -55,8 +55,8 @@ describe("times", () => {
         ["1h-2h et 2h-3h 4h-5h", "1h-2h et 2h-3h 4h-5h"],
         ["1h-2h lundi 2h-3h 4h-5h", "1h-2h"],
         ["06h30-09h30, 15h30-18h30", "06h30-09h30, 15h30-18h30"],
-    ])("rpaRegex.timesSequence.exec('%s')?.[0]", (value, expected) => {
-        const result = rpaRegex.timesSequence.exec(value)[0];
+    ])("rpaReg.timesSequence.exec('%s')?.[0]", (value, expected) => {
+        const result = rpaReg.timesSequence.exec(value)[0];
         expect(result).toBe(expected);
     });
 
@@ -79,7 +79,7 @@ describe("times", () => {
         ["60 MIN - 8H À 18H", "60 MIN"],
         ["2H - 8H À 18H", undefined], // wrong. Hopefully the data has nothing such.
     ])("rpaRex.maxStay.exec('%s')?.[0]", (value, expected) => {
-        const result = rpaRegex.maxStay.exec(value)?.[0];
+        const result = rpaReg.getExecFirstMatch(rpaReg.maxStay, value);
         expect(result).toEqual(expected);
     });
 });
@@ -112,8 +112,8 @@ describe("days", () => {
         ["MONDAY", undefined ],
         ["MARS", undefined ],
     ])("anyDayOfWeek.exec('%s')?.[0]", (value, expected) => {
-        rpaRegex.anyDayOfWeek.lastIndex = 0;
-        const result = rpaRegex.anyDayOfWeek.exec(value)?.[0];
+        rpaReg.anyDayOfWeek.lastIndex = 0;
+        const result = rpaReg.getExecFirstMatch(rpaReg.anyDayOfWeek, value);
         expect(result).toBe(expected);
     });
 
@@ -126,8 +126,8 @@ describe("days", () => {
         ["LUN VEN", undefined ],
         ["1h À 2h", undefined ],
     ])("daysOfWeekInterval.exec('%s')?.[0]", (value, expected) => {
-        rpaRegex.daysOfWeekInterval.lastIndex = 0;
-        const result = rpaRegex.daysOfWeekInterval.exec(value)?.[0];
+        rpaReg.daysOfWeekInterval.lastIndex = 0;
+        const result = rpaReg.getExecFirstMatch(rpaReg.daysOfWeekInterval, value);
         expect(result).toBe(expected);
     });
 
@@ -141,9 +141,9 @@ describe("days", () => {
         ["LUN.ET VEN.", "LUN.ET VEN."],
         ["1h-2h LUN MAR", "LUN MAR"],
         ["LUN A MER", undefined],
-    ])("rpaRegex.daysOfWeekEnumeration.exec('%s')?.[0]", (value, expected) => {
-        rpaRegex.daysOfWeekEnumeration.lastIndex = 0;
-        const result = rpaRegex.daysOfWeekEnumeration.exec(value)?.[0];
+    ])("rpaReg.daysOfWeekEnumeration.exec('%s')?.[0]", (value, expected) => {
+        rpaReg.daysOfWeekEnumeration.lastIndex = 0;
+        const result = rpaReg.getExecFirstMatch(rpaReg.daysOfWeekEnumeration, value);
         expect(result).toBe(expected);
     });
 });
@@ -165,9 +165,9 @@ describe( "times of week", () => {
         ["LUN", undefined],
         ["1h-2h LUN", undefined],
         ["MER 17H À JEU 17H", undefined],
-    ])("rpaRegex.weekTimeDaysFirst.exec('%s')?.[0]", (value, expected) => {
-        rpaRegex.weekTimeDaysFirst.lastIndex = 0;
-        const result = rpaRegex.weekTimeDaysFirst.exec(value)?.[0];
+    ])("rpaReg.weekTimeDaysFirst.exec('%s')?.[0]", (value, expected) => {
+        rpaReg.weekTimeDaysFirst.lastIndex = 0;
+        const result = rpaReg.getExecFirstMatch(rpaReg.weekTimeDaysFirst, value);
         expect(result).toBe(expected);
     });
 
@@ -185,9 +185,9 @@ describe( "times of week", () => {
         ["LUN", undefined],
         ["LUN 1h-2h", undefined],
         ["MER 17H À JEU 17H", undefined],
-    ])("rpaRegex.weekTimeDaysSecond.exec('%s')?.[0]", (value, expected) => {
-        rpaRegex.weekTimeDaysSecond.lastIndex = 0;
-        const result = rpaRegex.weekTimeDaysSecond.exec(value)?.[0];
+    ])("rpaReg.weekTimeDaysSecond.exec('%s')?.[0]", (value, expected) => {
+        rpaReg.weekTimeDaysSecond.lastIndex = 0;
+        const result = rpaReg.getExecFirstMatch(rpaReg.weekTimeDaysSecond, value);
         expect(result).toBe(expected);
     });
 
@@ -197,10 +197,10 @@ describe( "times of week", () => {
         ["1h-2h LUN, 3h-4h MAR. MER.", "3h-4h MAR. MER."],
         ["1h-2h LUN, 3h-4h 5h-6h MAR", "3h-4h 5h-6h MAR"],
         ["1h-2h LUN", undefined],
-    ])("rpaRegex.weekTimeDaysSecond.exec('%s')?.[0] second call", (value, expected) => {
-        rpaRegex.weekTimeDaysSecond.lastIndex = 0;
-        rpaRegex.weekTimeDaysSecond.exec(value); // first call
-        const result = rpaRegex.weekTimeDaysSecond.exec(value)?.[0]; // second call
+    ])("rpaReg.weekTimeDaysSecond.exec('%s')?.[0] second call", (value, expected) => {
+        rpaReg.weekTimeDaysSecond.lastIndex = 0;
+        rpaReg.getExecFirstMatch(rpaReg.weekTimeDaysSecond, value); // first call
+        const result = rpaReg.getExecFirstMatch(rpaReg.weekTimeDaysSecond, value); // second call
         expect(result).toBe(expected);
     });
 
@@ -211,9 +211,9 @@ describe( "times of week", () => {
         ["LUN 1h-2h", undefined],
         ["1h-2h LUN", undefined],
         ["MER 17H À JEU 17H", undefined],
-    ])("rpaRegex.weekTimeDaysAbsent.exec('%s')?.[0]", (value, expected) => {
-        rpaRegex.weekTimeDaysAbsent.lastIndex = 0;
-        const result = rpaRegex.weekTimeDaysAbsent.exec(value)?.[0];
+    ])("rpaReg.weekTimeDaysAbsent.exec('%s')?.[0]", (value, expected) => {
+        rpaReg.weekTimeDaysAbsent.lastIndex = 0;
+        const result = rpaReg.getExecFirstMatch(rpaReg.weekTimeDaysAbsent, value);
         expect(result).toBe(expected);
     });
 
@@ -224,9 +224,9 @@ describe( "times of week", () => {
         ["LUN 1h-2h", undefined],
         ["1h-2h LUN", undefined],
         ["MER 17H À JEU 17H", undefined],
-    ])("rpaRegex.weekTimeDaysOnly.exec('%s')?.[0]", (value, expected) => {
-        rpaRegex.weekTimeDaysOnly.lastIndex = 0;
-        const result = rpaRegex.weekTimeDaysOnly.exec(value)?.[0];
+    ])("rpaReg.weekTimeDaysOnly.exec('%s')?.[0]", (value, expected) => {
+        rpaReg.weekTimeDaysOnly.lastIndex = 0;
+        const result = rpaReg.getExecFirstMatch(rpaReg.weekTimeDaysOnly, value);
         expect(result).toBe(expected);
     });
 
@@ -239,9 +239,9 @@ describe( "times of week", () => {
         ["1h-2h 3h-4h LUN", undefined],
         ["1h-2h LUN MAR", undefined],
         ["LUN 1h-2h", undefined],
-    ])("rpaRegex.weekTimeDaysOverlapDayFirst.exec('%s')?.[0]", (value, expected) => {
-        rpaRegex.weekTimeDaysOverlapDayFirst.lastIndex = 0;
-        const result = rpaRegex.weekTimeDaysOverlapDayFirst.exec(value)?.[0];
+    ])("rpaReg.weekTimeDaysOverlapDayFirst.exec('%s')?.[0]", (value, expected) => {
+        rpaReg.weekTimeDaysOverlapDayFirst.lastIndex = 0;
+        const result = rpaReg.getExecFirstMatch(rpaReg.weekTimeDaysOverlapDayFirst, value);
         expect(result).toBe(expected);
     });
 
@@ -254,9 +254,9 @@ describe( "times of week", () => {
         ["1h-2h 3h-4h LUN", undefined],
         ["1h-2h LUN MAR", undefined],
         ["LUN 1h-2h", undefined],
-    ])("rpaRegex.weekTimeDaysOverlapDaySecond.exec('%s')?.[0]", (value, expected) => {
-        rpaRegex.weekTimeDaysOverlapDaySecond.lastIndex = 0;
-        const result = rpaRegex.weekTimeDaysOverlapDaySecond.exec(value)?.[0];
+    ])("rpaReg.weekTimeDaysOverlapDaySecond.exec('%s')?.[0]", (value, expected) => {
+        rpaReg.weekTimeDaysOverlapDaySecond.lastIndex = 0;
+        const result = rpaReg.getExecFirstMatch(rpaReg.weekTimeDaysOverlapDaySecond, value);
         expect(result).toBe(expected);
     });
 
@@ -268,9 +268,9 @@ describe( "times of week", () => {
         ["1h-2h 3h-4h LUN", undefined],
         ["1h-2h LUN MAR", undefined],
         ["LUN 1h-2h", undefined],
-    ])("rpaRegex.weekTimeDaysOverlap.exec('%s')?.[0]", (value, expected) => {
-        rpaRegex.weekTimeDaysOverlap.lastIndex = 0;
-        const result = rpaRegex.weekTimeDaysOverlap.exec(value)?.[0];
+    ])("rpaReg.weekTimeDaysOverlap.exec('%s')?.[0]", (value, expected) => {
+        rpaReg.weekTimeDaysOverlap.lastIndex = 0;
+        const result = rpaReg.getExecFirstMatch(rpaReg.weekTimeDaysOverlap, value);
         expect(result).toBe(expected);
     });
 
@@ -287,9 +287,9 @@ describe( "times of week", () => {
         ["LUN 1h-2h", "LUN 1h-2h"],
         ["MER 17H À JEU 17H", "MER 17H À JEU 17H"],
         ["17H MER À 17H JEU", "17H MER À 17H JEU"],
-    ])("rpaRegex.weekTime.exec('%s')?.[0]", (value, expected) => {
-        rpaRegex.weekTime.lastIndex = 0;
-        const result = rpaRegex.weekTime.exec(value)?.[0];
+    ])("rpaReg.weekTime.exec('%s')?.[0]", (value, expected) => {
+        rpaReg.weekTime.lastIndex = 0;
+        const result = rpaReg.getExecFirstMatch(rpaReg.weekTime, value);
         expect(result).toBe(expected);
     });
 });
@@ -302,8 +302,8 @@ describe("months", () => {
         ["1 janvier", "janvier"],
         ["1janvier", "janvier"],
         ["jantest", undefined ],
-    ])("rpaRegex.months['01'].exec('%s')?.[0]", (value, expected) => {
-        const result = rpaRegex.months['01'].exec(value)?.[0];
+    ])("rpaReg.months['01'].exec('%s')?.[0]", (value, expected) => {
+        const result = rpaReg.getExecFirstMatch(rpaReg.months['01'], value);
         expect(result).toBe(expected);
     });
 
@@ -317,8 +317,8 @@ describe("months", () => {
         ["1 février", "février"],
         ["1février", "février"],
         ["févtest", undefined ],
-    ])("rpaRegex.months['02'].exec('%s')?.[0]", (value, expected) => {
-        const result = rpaRegex.months['02'].exec(value)?.[0];
+    ])("rpaReg.months['02'].exec('%s')?.[0]", (value, expected) => {
+        const result = rpaReg.getExecFirstMatch(rpaReg.months['02'], value);
         expect(result).toBe(expected);
     });
 
@@ -333,8 +333,8 @@ describe("months", () => {
         ["marsl", "marsl"],
         ["martest", undefined ],
         ["champ-de-mars", undefined ],
-    ])("rpaRegex.months['03'].exec('%s')?.[0]", (value, expected) => {
-        const result = rpaRegex.months['03'].exec(value)?.[0];
+    ])("rpaReg.months['03'].exec('%s')?.[0]", (value, expected) => {
+        const result = rpaReg.getExecFirstMatch(rpaReg.months['03'], value);
         expect(result).toBe(expected);
     });
 
@@ -347,8 +347,8 @@ describe("months", () => {
         ["avil", "avil"],
         ["avrils", "avrils"],
         ["avrtest", undefined ],
-    ])("rpaRegex.months['04'].exec('%s')?.[0]", (value, expected) => {
-        const result = rpaRegex.months['04'].exec(value)?.[0];
+    ])("rpaReg.months['04'].exec('%s')?.[0]", (value, expected) => {
+        const result = rpaReg.getExecFirstMatch(rpaReg.months['04'], value);
         expect(result).toBe(expected);
     });
 
@@ -357,8 +357,8 @@ describe("months", () => {
         ["1 mai", "mai"],
         ["1mai", "mai"],
         ["maitest", undefined],
-    ])("rpaRegex.months['05'].exec('%s')?.[0]", (value, expected) => {
-        const result = rpaRegex.months['05'].exec(value)?.[0];
+    ])("rpaReg.months['05'].exec('%s')?.[0]", (value, expected) => {
+        const result = rpaReg.getExecFirstMatch(rpaReg.months['05'], value);
         expect(result).toBe(expected);
     });
 
@@ -367,8 +367,8 @@ describe("months", () => {
         ["1 juin", "juin"],
         ["1juin", "juin"],
         ["juintest", undefined],
-    ])("rpaRegex.months['06'].exec('%s')?.[0]", (value, expected) => {
-        const result = rpaRegex.months['06'].exec(value)?.[0];
+    ])("rpaReg.months['06'].exec('%s')?.[0]", (value, expected) => {
+        const result = rpaReg.getExecFirstMatch(rpaReg.months['06'], value);
         expect(result).toBe(expected);
     });
 
@@ -379,8 +379,8 @@ describe("months", () => {
         ["1 juillet", "juillet"],
         ["1juillet", "juillet"],
         ["juiltest", undefined ],
-    ])("rpaRegex.months['07'].exec('%s')?.[0]", (value, expected) => {
-        const result = rpaRegex.months['07'].exec(value)?.[0];
+    ])("rpaReg.months['07'].exec('%s')?.[0]", (value, expected) => {
+        const result = rpaReg.getExecFirstMatch(rpaReg.months['07'], value);
         expect(result).toBe(expected);
     });
 
@@ -390,8 +390,8 @@ describe("months", () => {
         ["1 août", "août"],
         ["1août", "août"],
         ["aoûttest", undefined ],
-    ])("rpaRegex.months['08'].exec('%s')?.[0]", (value, expected) => {
-        const result = rpaRegex.months['08'].exec(value)?.[0];
+    ])("rpaReg.months['08'].exec('%s')?.[0]", (value, expected) => {
+        const result = rpaReg.getExecFirstMatch(rpaReg.months['08'], value);
         expect(result).toBe(expected);
     });
 
@@ -402,8 +402,8 @@ describe("months", () => {
         ["1 septembre", "septembre"],
         ["1septembre", "septembre"],
         ["septest", undefined ],
-    ])("rpaRegex.months['09'].exec('%s')?.[0]", (value, expected) => {
-        const result = rpaRegex.months['09'].exec(value)?.[0];
+    ])("rpaReg.months['09'].exec('%s')?.[0]", (value, expected) => {
+        const result = rpaReg.getExecFirstMatch(rpaReg.months['09'], value);
         expect(result).toBe(expected);
     });
 
@@ -414,8 +414,8 @@ describe("months", () => {
         ["1 octobre", "octobre"],
         ["1octobre", "octobre"],
         ["octtest", undefined ],
-    ])("rpaRegex.months['10'].exec('%s')?.[0]", (value, expected) => {
-        const result = rpaRegex.months['10'].exec(value)?.[0];
+    ])("rpaReg.months['10'].exec('%s')?.[0]", (value, expected) => {
+        const result = rpaReg.getExecFirstMatch(rpaReg.months['10'], value);
         expect(result).toBe(expected);
     });
 
@@ -426,8 +426,8 @@ describe("months", () => {
         ["1 novembre", "novembre"],
         ["1novembre", "novembre"],
         ["novtest", undefined ],
-    ])("rpaRegex.months['11'].exec('%s')?.[0]", (value, expected) => {
-        const result = rpaRegex.months['11'].exec(value)?.[0];
+    ])("rpaReg.months['11'].exec('%s')?.[0]", (value, expected) => {
+        const result = rpaReg.getExecFirstMatch(rpaReg.months['11'], value);
         expect(result).toBe(expected);
     });
 
@@ -441,8 +441,8 @@ describe("months", () => {
         ["1 décembre", "décembre"],
         ["1décembre", "décembre"],
         ["déctest", undefined ],
-    ])("rpaRegex.months['12'].exec('%s')?.[0]", (value, expected) => {
-        const result = rpaRegex.months['12'].exec(value)?.[0];
+    ])("rpaReg.months['12'].exec('%s')?.[0]", (value, expected) => {
+        const result = rpaReg.getExecFirstMatch(rpaReg.months['12'], value);
         expect(result).toBe(expected);
     });
 });
@@ -458,9 +458,9 @@ describe( "dates", () => {
         ["15NOV", "15NOV"],
         ["AVRIL 01", undefined],
         ["MAI-JUIN", undefined],
-    ])("rpaRegex.dayOfMonthDayFirst.exec('%s')?.[0]", (value, expected) => {
-        rpaRegex.dayOfMonthDayFirst.lastIndex = 0;
-        const result = rpaRegex.dayOfMonthDayFirst.exec(value)?.[0];
+    ])("rpaReg.dayOfMonthDayFirst.exec('%s')?.[0]", (value, expected) => {
+        rpaReg.dayOfMonthDayFirst.lastIndex = 0;
+        const result = rpaReg.getExecFirstMatch(rpaReg.dayOfMonthDayFirst, value);
         expect(result).toBe(expected);
     });
 
@@ -468,9 +468,9 @@ describe( "dates", () => {
         ["AVRIL 01", "AVRIL 01"],
         ["01 AVRIL AU 01 DEC", undefined],
         ["1 MARS", undefined],
-    ])("rpaRegex.dayOfMonthDaySecond.exec('%s')?.[0]", (value, expected) => {
-        rpaRegex.dayOfMonthDaySecond.lastIndex = 0;
-        const result = rpaRegex.dayOfMonthDaySecond.exec(value)?.[0];
+    ])("rpaReg.dayOfMonthDaySecond.exec('%s')?.[0]", (value, expected) => {
+        rpaReg.dayOfMonthDaySecond.lastIndex = 0;
+        const result = rpaReg.getExecFirstMatch(rpaReg.dayOfMonthDaySecond, value);
         expect(result).toBe(expected);
     });
 
@@ -480,9 +480,9 @@ describe( "dates", () => {
         ["1/1", undefined],
         ["01/1", undefined],
         ["1/01", undefined],
-    ])("rpaRegex.dayOfMonthSlashed.exec('%s')?.[0]", (value, expected) => {
-        rpaRegex.dayOfMonthSlashed.lastIndex = 0;
-        const result = rpaRegex.dayOfMonthSlashed.exec(value)?.[0];
+    ])("rpaReg.dayOfMonthSlashed.exec('%s')?.[0]", (value, expected) => {
+        rpaReg.dayOfMonthSlashed.lastIndex = 0;
+        const result = rpaReg.getExecFirstMatch(rpaReg.dayOfMonthSlashed, value);
         expect(result).toBe(expected);
     });
 
@@ -498,8 +498,8 @@ describe( "dates", () => {
         ["MAI-JUIN", undefined],
         ["MARS 01 A DEC 01", undefined],
         ["MARS 1 AU 1 DEC", undefined],
-    ])("rpaRegex.daysOfMonthIntervalDayFirst.exec('%s')?.[0]", (value, expected) => {
-        const result = rpaRegex.daysOfMonthIntervalDayFirst.exec(value)?.[0];
+    ])("rpaReg.daysOfMonthIntervalDayFirst.exec('%s')?.[0]", (value, expected) => {
+        const result = rpaReg.getExecFirstMatch(rpaReg.daysOfMonthIntervalDayFirst, value);
         expect(result).toBe(expected);
     });
 
@@ -514,8 +514,8 @@ describe( "dates", () => {
         ["MAI-JUIN", undefined],
         ["1 MARS - 1 DEC", undefined],
         ["MARS 1 AU 1 DEC", undefined],
-    ])("rpaRegex.daysOfMonthIntervalDaySecond.exec('%s')?.[0]", (value, expected) => {
-        const result = rpaRegex.daysOfMonthIntervalDaySecond.exec(value)?.[0];
+    ])("rpaReg.daysOfMonthIntervalDaySecond.exec('%s')?.[0]", (value, expected) => {
+        const result = rpaReg.getExecFirstMatch(rpaReg.daysOfMonthIntervalDaySecond, value);
         expect(result).toBe(expected);
     });
 
@@ -531,8 +531,8 @@ describe( "dates", () => {
         ["1 MARS - 1 DEC", undefined],
         ["MARS 1 AU 1 DEC", undefined],
         ["MARS 1 AU DEC 1", undefined],
-    ])("rpaRegex.daysOfMonthIntervalDayAbsent.exec('%s')?.[0]", (value, expected) => {
-        const result = rpaRegex.daysOfMonthIntervalDayAbsent.exec(value)?.[0];
+    ])("rpaReg.daysOfMonthIntervalDayAbsent.exec('%s')?.[0]", (value, expected) => {
+        const result = rpaReg.getExecFirstMatch(rpaReg.daysOfMonthIntervalDayAbsent, value);
         expect(result).toBe(expected);
     });
 
@@ -545,8 +545,8 @@ describe( "dates", () => {
         ["MAI", undefined],
         ["01/05 TEST 01/10", undefined],
         ["1 MARS - 1 DEC", undefined]      
-    ])("rpaRegex.daysOfMonthIntervalSlashed.exec('%s')?.[0]", (value, expected) => {
-        const result = rpaRegex.daysOfMonthIntervalSlashed.exec(value)?.[0];
+    ])("rpaReg.daysOfMonthIntervalSlashed.exec('%s')?.[0]", (value, expected) => {
+        const result = rpaReg.getExecFirstMatch(rpaReg.daysOfMonthIntervalSlashed, value);
         expect(result).toBe(expected);
     });
 
@@ -560,8 +560,8 @@ describe( "dates", () => {
         ["MAI", undefined],
         ["MARS 1 TEST 1 DEC", undefined],
         ["MARS 1 AU 1 DEC", undefined],
-    ])("rpaRegex.daysOfMonthInterval.exec('%s')?.[0]", (value, expected) => {
-        const result = rpaRegex.daysOfMonthInterval.exec(value)?.[0];
+    ])("rpaReg.daysOfMonthInterval.exec('%s')?.[0]", (value, expected) => {
+        const result = rpaReg.getExecFirstMatch(rpaReg.daysOfMonthInterval, value);
         expect(result).toBe(expected);
     });
 });
@@ -575,19 +575,19 @@ describe("sameDatesTimeSpan", () => {
         ["1h-2h 1er jan à 2 fev. 3h30 @ 4h mars 3 au avril 4", "1h-2h 1er jan à 2 fev."],
         ["9H À 17H LUN MER VEN 15 NOV AU 15 MARS, 11H À 12H MERCREDI 15 MARS AU 15 NOV", "9H À 17H LUN MER VEN 15 NOV AU 15 MARS"],
         ["1ER AVRIL - 30 NOV", "1ER AVRIL - 30 NOV"],
-    ])("rpaRegex.sameDatesTimeSpan.exec('%s')?.[0]", (value, expected) => {
-        rpaRegex.sameDatesTimeSpan.lastIndex = 0;
-        const result = rpaRegex.sameDatesTimeSpan.exec(value)?.[0];
+    ])("rpaReg.sameDatesTimeSpan.exec('%s')?.[0]", (value, expected) => {
+        rpaReg.sameDatesTimeSpan.lastIndex = 0;
+        const result = rpaReg.getExecFirstMatch(rpaReg.sameDatesTimeSpan, value);
         expect(result).toBe(expected);
     });
 
     test.each([
         ["1h-2h 1er jan à 2 fev. 3h30 @ 4h mars 3 au avril 4", "3h30 @ 4h mars 3 au avril 4"],
         ["9H À 17H LUN MER VEN 15 NOV AU 15 MARS, 11H À 12H MERCREDI 15 MARS AU 15 NOV", "11H À 12H MERCREDI 15 MARS AU 15 NOV"],
-    ])("rpaRegex.sameDatesTimeSpan.exec('%s')  second call", (value, expected) => {
-        rpaRegex.sameDatesTimeSpan.lastIndex = 0;
-        rpaRegex.sameDatesTimeSpan.exec(value)?.[0]; // first call
-        const result = rpaRegex.sameDatesTimeSpan.exec(value)?.[0]; // second call
+    ])("rpaReg.sameDatesTimeSpan.exec('%s')  second call", (value, expected) => {
+        rpaReg.sameDatesTimeSpan.lastIndex = 0;
+        rpaReg.getExecFirstMatch(rpaReg.sameDatesTimeSpan, value); // first call
+        const result = rpaReg.getExecFirstMatch(rpaReg.sameDatesTimeSpan, value); // second call
         expect(result).toBe(expected);
     });
 })

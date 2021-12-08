@@ -51,11 +51,11 @@ function getActivity(description, timeSpans, maxStay) {
 }
 
 function getMaxStay(description) {
-    const maxStayDescription = rpaReg.maxStay.exec(description)?.[0];
+    const maxStayDescription = rpaReg.getExecFirstMatch(rpaReg.maxStay, description);
     if (!maxStayDescription) {
         return undefined;
     }
-    const digits = /\d*/.exec(maxStayDescription)?.[0];
+    const digits = rpaReg.getExecFirstMatch(/\d*/, maxStayDescription);
     const digitsInt = parseInt(digits);
     if (maxStayDescription.slice(-1).toUpperCase() == "H") {
         return digitsInt*60;
@@ -66,17 +66,18 @@ function getMaxStay(description) {
 }
 
 function extractFirstTwoDigitsNumber(string) {
-    const number = /\d{1,2}/.exec(string)?.[0];
-    return number?.padStart(2,'0');
+    const number = rpaReg.getExecFirstMatch(/\d{1,2}/, string);
+    return number? number.padStart(2,'0') : undefined;
 }
 
 // Extract a month from a string. Not sure which one when more than two
 function extractMonth(string) {
-    return Object.entries(rpaReg.months).find( ([monthNumber, regex]) => {
+    const entry = Object.entries(rpaReg.months).find( ([monthNumber, regex]) => {
         if (regex.test(string)) {
             return true;
         }
-    })?.[0];
+    });
+    return entry? entry[0] : undefined;
 }
 
 // Get effective dates for dates which the day is before the month
@@ -155,7 +156,7 @@ function getEffectiveDatesFromSlashedSyntax(dayOfMonthInterval) {
 }
 
 function getEffectiveDates(description) {
-    const daysOfMonthInterval = rpaReg.daysOfMonthInterval.exec(description)?.[0];
+    const daysOfMonthInterval = rpaReg.getExecFirstMatch(rpaReg.daysOfMonthInterval, description);
 
     if (!daysOfMonthInterval) {
         return undefined;
@@ -176,11 +177,12 @@ function getEffectiveDates(description) {
 }
 
 function extractDayOfWeek(string) {
-    return Object.entries(rpaReg.daysOfWeek).find( ([dayAbbreviation, regex]) => {
+    const entry = Object.entries(rpaReg.daysOfWeek).find( ([dayAbbreviation, regex]) => {
         if (regex.test(string)) {
             return true;
         }
-    })?.[0];
+    });
+    return entry? entry[0] : undefined;
 }
 
 // Get an interval of days. Days separated with "A", "À", "AU",
@@ -188,8 +190,8 @@ function extractDayOfWeek(string) {
 const orderedDays = ["mo", "tu", "we", "th", "fr", "sa", "su", "mo", "tu", "we", "th", "fr", "sa"];
 function getDaysOfWeekFromInterval(weekTimeDescription) {
     rpaReg.anyDayOfWeek.lastIndex = 0;
-    const startDayDescription = rpaReg.anyDayOfWeek.exec(weekTimeDescription)?.[0];
-    const endDayDescription = rpaReg.anyDayOfWeek.exec(weekTimeDescription)?.[0];
+    const startDayDescription = rpaReg.getExecFirstMatch(rpaReg.anyDayOfWeek, weekTimeDescription);
+    const endDayDescription = rpaReg.getExecFirstMatch(rpaReg.anyDayOfWeek, weekTimeDescription);
     const startDay = extractDayOfWeek(startDayDescription);
     const endDay = extractDayOfWeek(endDayDescription);
     const startDayIndex = orderedDays.indexOf(startDay);
@@ -204,7 +206,7 @@ function getDaysOfWeekFromEnumeration(weekTimeDescription) {
     const days = [];
     let dayDescription;
     rpaReg.anyDayOfWeek.lastIndex = 0;
-    while (dayDescription = rpaReg.anyDayOfWeek.exec(weekTimeDescription)?.[0]) {
+    while (dayDescription = rpaReg.getExecFirstMatch(rpaReg.anyDayOfWeek, weekTimeDescription)) {
         const day = extractDayOfWeek(dayDescription);
         days.push(day)
     }
@@ -233,8 +235,8 @@ function convertHtime(time) {
 
 function getTimeOfDay(timeOfDayDescription) {
     rpaReg.time.lastIndex = 0;
-    const startTime = rpaReg.time.exec(timeOfDayDescription)?.[0];
-    const endTime = rpaReg.time.exec(timeOfDayDescription)?.[0];
+    const startTime = rpaReg.getExecFirstMatch(rpaReg.time, timeOfDayDescription);
+    const endTime = rpaReg.getExecFirstMatch(rpaReg.time, timeOfDayDescription);
     if (startTime && endTime) {
         return {
             from: convertHtime(startTime),
@@ -248,7 +250,7 @@ function getTimesOfDay(description) {
     const timesOfDay = [];
     let timeOfDayDescription;
     rpaReg.timeInterval.lastIndex = 0;
-    while (timeOfDayDescription = rpaReg.timeInterval.exec(description)?.[0]) {
+    while (timeOfDayDescription = rpaReg.getExecFirstMatch(rpaReg.timeInterval, description)) {
         const timeOfDay = getTimeOfDay(timeOfDayDescription)
         timesOfDay.push(timeOfDay)
     }
@@ -260,9 +262,9 @@ function getTimesOfDay(description) {
 function getTimeSpansFromDaysOverlapSyntax(description, effectiveDates) {
     const timeSpans = [];
     rpaReg.time.lastIndex = 0;
-    const startTimeDescription = rpaReg.time.exec(description)?.[0];
+    const startTimeDescription = rpaReg.getExecFirstMatch(rpaReg.time, description);
     const startTime = convertHtime(startTimeDescription);
-    const endTimeDescription = rpaReg.time.exec(description)?.[0];
+    const endTimeDescription = rpaReg.getExecFirstMatch(rpaReg.time, description);
     const endTime = convertHtime(endTimeDescription);
     const days = getDaysOfWeekFromInterval(description)["days"];
 
@@ -309,12 +311,12 @@ function getTimeSpans(description) {
 
     let sameDatesTimeSpanDescription;
     rpaReg.sameDatesTimeSpan.lastIndex = 0;
-    while (sameDatesTimeSpanDescription = rpaReg.sameDatesTimeSpan.exec(description)?.[0]) {
+    while (sameDatesTimeSpanDescription = rpaReg.getExecFirstMatch(rpaReg.sameDatesTimeSpan, description)) {
         const effectiveDates = getEffectiveDates(sameDatesTimeSpanDescription);
         let timeSpanAdded = false;
         let timeSpanDescription;
         rpaReg.weekTime.lastIndex = 0;
-        while (timeSpanDescription = rpaReg.weekTime.exec(sameDatesTimeSpanDescription)?.[0]) {
+        while (timeSpanDescription = rpaReg.getExecFirstMatch(rpaReg.weekTime, sameDatesTimeSpanDescription)) {
             rpaReg.weekTimeDaysOverlap.lastIndex = 0;
             if (rpaReg.weekTimeDaysOverlap.exec(timeSpanDescription)) {
                 // special syntax

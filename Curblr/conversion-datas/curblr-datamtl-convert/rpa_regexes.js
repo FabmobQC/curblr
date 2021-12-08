@@ -190,7 +190,19 @@ const anyTimespan = new RegExp(anyTimespanStr, "i");
 const noTimespanBeforeStr = `(?<!(${anyTimespanStr}).*)`;
 const noTimespanAfterStr = `(?!.*(${anyTimespanStr}))`;
 
+// Equivalent to regex.exec(value)?.[0], which is not available in node 12
+function getExecFirstMatch(regex, value) {
+    const result = regex.exec(value);
+    if (result) {
+        return result[0];
+    }
+    else {
+        return undefined;
+    }
+}
+
 module.exports = {
+    getExecFirstMatch,
     time,
     timeInterval,
     maxStay,
