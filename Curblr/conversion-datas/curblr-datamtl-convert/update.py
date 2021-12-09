@@ -189,10 +189,10 @@ def update(arronds, noms_sous_quartiers=[], specific_arrond="", data_sub_arronds
 
     os.system("echo -n 'create pannonceau... '")
     os.system(
-        "node pannonceau_to_regulations.js jsonpan > data/agregate-pannonceau-rpa.json")
+        "node pannonceau_to_regulations.js jsonpan data/agregate-pannonceau-rpa.json")
     os.system("echo -n ' ... '")
     os.system(
-        "node pannonceau_to_regulations.js jsonmtl > data/agregate-signalisation.json")
+        "node pannonceau_to_regulations.js jsonmtl data/agregate-signalisation.json")
     os.system("echo 'done'")
 
     os.system("rm data/mtl-subset*")
