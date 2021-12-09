@@ -1,0 +1,12 @@
+{
+  "name": "cubrlr-datamtl-convert",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "27.3.1"
+  },
+  "license": "MIT"
+}

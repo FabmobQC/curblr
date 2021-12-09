@@ -7,7 +7,7 @@ file_p = process.argv[2];
 const inputGeojson = fs.readFileSync(file_p);
 const input = JSON.parse(inputGeojson);
 const rpaCodeJson = fs.readFileSync('data/signalisation-codification-rpa_withRegulation.json');
-let rpaCode = JSON.parse(rpaCodeJson).reduce((acc,val)=>{acc[val.PANNEAU_ID_RPA]=val; return acc;},{});
+let rpaCode = JSON.parse(rpaCodeJson);
 const agregateRpaCodeJson = fs.readFileSync('data/agregate-pannonceau-rpa.json');
 const agregateRpaCode = JSON.parse(agregateRpaCodeJson);
 

@@ -182,8 +182,9 @@ def update(arronds, noms_sous_quartiers=[], specific_arrond="", data_sub_arronds
     os.system("echo 'done'")
 
     os.system("echo -n 'create regulations... '")
-    os.system(
-        "node rpa_to_regulations.js json > data/signalisation-codification-rpa_withRegulation.json")
+    f_rpa_in = "data/signalisation-codification-rpa.json"
+    f_rpa_out = "data/signalisation-codification-rpa_withRegulation.json"
+    os.system(f"node rpa_to_regulations.js {f_rpa_in} {f_rpa_out}")
     os.system("echo 'done'")
 
     os.system("echo -n 'create pannonceau... '")

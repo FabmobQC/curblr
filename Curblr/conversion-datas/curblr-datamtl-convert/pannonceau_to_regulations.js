@@ -21,7 +21,7 @@ const mtlDataJson = JSON.parse(mtlData);
 const mtlFeatur = mtlDataJson.features;
 
 const rpaCodeJson = fs.readFileSync('data/signalisation-codification-rpa_withRegulation.json');
-const rpaCode = JSON.parse(rpaCodeJson).reduce((acc,val)=>{acc[val.PANNEAU_ID_RPA]=val; return acc;},{});
+const rpaCode = JSON.parse(rpaCodeJson);
 
 mtlPot = mtlFeatur.reduce((acc,val)=>{
                 acc[val.properties.POTEAU_ID_POT]=acc[val.properties.POTEAU_ID_POT]?acc[val.properties.POTEAU_ID_POT]:[];
