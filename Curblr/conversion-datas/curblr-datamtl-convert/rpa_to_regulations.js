@@ -21,19 +21,17 @@ function containsIrrelevantExpression(description) {
 
 function getActivity(description, timeSpans, maxStay) {
     // if there is an explicit indication about the activity:
-    if(description.includes("\\P ") || description.startsWith("/P ") || description.startsWith("STAT. INT. ") || description.startsWith("INTERDICTION DE STAT. ")) {
+    if (description.includes("\\P ") || description.startsWith("/P ") || description.startsWith("STAT. INT. ") || description.startsWith("INTERDICTION DE STAT. ")) {
         return 'no parking';
-    } else if(description.includes("\\A ") || description.startsWith("A ")) {
+    } else if (description.includes("\\A ") || description.startsWith("A ")) {
         return 'no standing';
-    } else if(description.startsWith("P ")) {
+    } else if (description.startsWith("P ")) {
         return'parking';
-    } else if(description.startsWith("PANONCEAU ") || description.startsWith("PANNONCEAU")) {
+    } else if (description.startsWith("PANONCEAU ") || description.startsWith("PANNONCEAU")) {
         // Panonceaux modify an other sign.
         // Therefore they do not have an activity of their own, but they nevertheless have the activity of the sign they modify.
         return "panonceau";
     }
-
-    // if there is no explicit indications about the activity:
 
     if (maxStay) {
         // We assume descriptions containing maxStay are parking
@@ -45,6 +43,13 @@ function getActivity(description, timeSpans, maxStay) {
         // We assume descriptions containing timespan without further indications are no parking
         // This might be a wrong assumption
         return 'no parking';
+    }
+
+    // If nothing else has been found but there is a variation of the work "DÉBARCADÈRE"
+    if (rpaReg.debarcadere.test(description)) { 
+        // Some rules have loading with an other activity (ex: "\\P 15h30 - 18h LUN À VEN EXCEPTE DEBARCADERE")
+        // We're not sure what to do in that situation. For now, we assume such a rule is NOT 'loading'
+        return 'loading';
     }
 
     return 'irrelevant';

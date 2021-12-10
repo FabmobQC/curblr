@@ -591,3 +591,17 @@ describe("sameDatesTimeSpan", () => {
         expect(result).toBe(expected);
     });
 })
+
+describe("activities", () => {
+    test.each([
+        ["DÉBARCADÈRE", "DÉBARCADÈRE"],
+        ["DEBARCADERE", "DEBARCADERE"],
+        ["DEBAR.", "DEBAR."],
+        ["DÉBAR.", "DÉBAR."],
+        ["TEST", undefined],
+    ])("rpaReg.debarcadere.exec('%s')", (value, expected) => {
+        rpaReg.debarcadere.lastIndex = 0;
+        const result = rpaReg.getExecFirstMatch(rpaReg.debarcadere, value); // second call
+        expect(result).toBe(expected);
+    });
+})

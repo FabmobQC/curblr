@@ -190,6 +190,10 @@ const anyTimespan = new RegExp(anyTimespanStr, "i");
 const noTimespanBeforeStr = `(?<!(${anyTimespanStr}).*)`;
 const noTimespanAfterStr = `(?!.*(${anyTimespanStr}))`;
 
+// Match variations of the word "débarcadère"
+// contains 'DEBAR.' or 'DEBARCADERE', with or without accents
+const debarcadere = /d(e|é|É)bar(\.|(cad(e|è|È)re))/i;
+
 // Equivalent to regex.exec(value)?.[0], which is not available in node 12
 function getExecFirstMatch(regex, value) {
     const result = regex.exec(value);
@@ -230,5 +234,6 @@ module.exports = {
     weekTimeDaysOverlapDaySecond,
     weekTimeDaysOverlap,
     weekTime,
-    sameDatesTimeSpan
+    sameDatesTimeSpan,
+    debarcadere,
 }

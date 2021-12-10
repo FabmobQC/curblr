@@ -56,6 +56,9 @@ describe("getActivity", () => {
         [["P PANONCEAU",  undefined, undefined], "parking"],
         [["",  undefined, 10], "parking"],
         [["",  [], 10], "parking"],
+        [["DÉBARCADÈRE",  undefined, undefined], "loading"],
+        [["DEBAR.",  undefined, undefined], "loading"],
+        [["\\P 15h30 - 18h LUN À VEN EXCEPTE DEBARCADERE",  [], undefined], "no parking"], // uncertain. Maybe "DEBARCADERE" should be handled
         [["PANONCEAU ",  undefined, undefined], "panonceau"],
         [["PANNONCEAU",  undefined, undefined], "panonceau"],
         [["\\P",  undefined, undefined], "irrelevant"],
