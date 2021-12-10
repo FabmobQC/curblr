@@ -33,7 +33,7 @@ function getMtlPotWithPannonceau(mtlPot, rpaCode) {
                         RULES: rpaCode[pan.properties.PANNEAU_ID_RPA].regulations
                     }
                 );
-                pannelsfull.unshift(JSON.parse(JSON.stringify(pan)));
+                pannelsfull.unshift(pan);
             } else {
                 let newpannel = null;
                 if (pannonceau) {
@@ -53,12 +53,12 @@ function getMtlPotWithPannonceau(mtlPot, rpaCode) {
                         unmmanaged: pannelsRPA,
                         managed: []
                     };
-                    newpannel = JSON.parse(JSON.stringify(pan));
+                    newpannel = pan;
                     newpannel.properties.PANNEAU_ID_RPA = agregateID_RPA;
                     newpannel.properties.CODE_RPA = agregateCODE_RPA;
                     newpannel.properties.agregate = pannelsfull;
                 } else {
-                    newpannel = JSON.parse(JSON.stringify(pan));
+                    newpannel = pan;
                 }
                 acc.all.push(newpannel);
 
