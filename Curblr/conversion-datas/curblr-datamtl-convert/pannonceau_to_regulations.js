@@ -1,11 +1,15 @@
 const fs = require('fs');
 
-function getMtlPot(mtlFeatur) {
-    return mtlFeatur.reduce((acc,val)=>{
-                acc[val.properties.POTEAU_ID_POT]=acc[val.properties.POTEAU_ID_POT]?acc[val.properties.POTEAU_ID_POT]:[];
-                acc[val.properties.POTEAU_ID_POT].push(val); 
-                return acc;
-            },{});
+
+function groupByPoteauId(mtlFeatures) {
+    return mtlFeatures.reduce((acc,val)=>{
+        const poteauId = val.properties.POTEAU_ID_POT;
+        if (!acc[poteauId]) {
+            acc[poteauId] = []
+        }
+        acc[poteauId].push(val); 
+        return acc;
+    },{});
 }
 
 function getMtlPotWithPannonceau(mtlPot, rpaCode) {
@@ -145,9 +149,9 @@ function mystery3(mtlPotWithPannonceau) {
                 })
 }
 
-function doMainThing(mtlDataJson, rpaCode, outputType) {
-    const mtlFeatur = mtlDataJson.features;
-    const mtlPot = getMtlPot(mtlFeatur);
+function doMainThing(mtlData, rpaCode, outputType) {
+    const mtlFeatures = mtlData.features;
+    const mtlPot = groupByPoteauId(mtlFeatures);
     const mtlPotWithPannonceau = getMtlPotWithPannonceau(mtlPot, rpaCode);
     mystery1(mtlPotWithPannonceau);
     updateSomeRules(mtlPotWithPannonceau);
@@ -155,7 +159,7 @@ function doMainThing(mtlDataJson, rpaCode, outputType) {
     mystery3(mtlPotWithPannonceau);
 
     if(outputType=="jsonmtl") {
-        const geojson = {"crs":mtlDataJson.crs};
+        const geojson = {"crs":mtlData.crs};
         geojson['type'] = 'FeatureCollection';
         geojson['features'] = mtlPotWithPannonceau.all
         return JSON.stringify(geojson, null, 2);
