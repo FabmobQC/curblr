@@ -1,15 +1,22 @@
 # Projet de conversion des données de stationnement de la ville de Montréal vers le format CurbLR
 
 
-## Exécution des scripts
-1. Installer yarn (npm devrais fonctionné aussi) et node
-2. Exécuter `yarn` à la racine du dépôt
-3. exécuter le script souhaitez: `node subset.js` ou pour exécuter l’ensemble ./update.sh
+## Préalables
+1. Installer yarn et utiliser node 12
+2. Installer les dépendances de Python
+> pip3 install -r requirements.txt
+3. Installer [SharedStreets](https://github.com/sharedstreets/sharedstreets-js). En cas de difficulté, builder [cette version](https://github.com/idillon-sfl/sharedstreets-js/tree/make-it-work-again) et exécuter à partir de bin/run.
 
+## Exécuter
+1. Exécuter update.py avec la config voulue. Par exemple :
+> python3 update.py configs/config_plaza.json
 
+## Exécuter les tests
+> cd tests
+> yarn test
 
-## Création d’un subset de donnée
-Afin de pouvoir tester rapidement les outils, la création d’un subset de donnée est nécessaire. Le script subset.js permet de faire cela. Présentement, une zone entourant le bureau de sfl est prédéfinie, mais il est possible de modifier la zone en indiquant la longitude et latitude encadrant la zone souhaitée dans le script. Attention, à faire un rectangle aligné au nord géographique et non au nord montréalais (environ 45° de différence).
+## Création d’un subset de données
+Afin de pouvoir tester rapidement les outils, la création d’un subset de donnée est nécessaire. Le script subset.js permet de faire cela. Il est possible de modifier la zone en indiquant la longitude et latitude encadrant la zone souhaitée dans le script. Attention, à faire un rectangle aligné au nord géographique et non au nord montréalais (environ 45° de différence).
 
 
 ## TODO
