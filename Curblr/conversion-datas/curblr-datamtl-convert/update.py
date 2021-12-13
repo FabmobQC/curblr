@@ -1,56 +1,12 @@
-import os
 import json
+import os
+import sys
+
 from turfpy.measurement import boolean_point_in_polygon
 from geojson import Point, Polygon, Feature
 
-arronds = [
-    # "LaSalle",
-    "Ville-Marie",
-    "Côte-des-Neiges - Notre-Dame-de-Grâce",  # null
-    # # "None",
-    # "Montréal-Nord",
-    "Saint-Léonard",  # null
-    # "Verdun",
-    "L'Île-Bizard - Sainte-Geneviève",  # present mais
-    "Sud-Ouest",  # null
-    # "Villeray - Saint-Michel - Parc-Extension",
-    # "Anjou",
-    # "Lachine",
-    # "Plateau-Mont-Royal",
-    # "Rivière-des-Prairies - Pointe-aux-Trembles",
-    # "Rosemont - La Petite-Patrie",
-    # "Mercier - Hochelaga-Maisonneuve",
-    # "Pierrefonds - Roxboro",
-    "Outremont",  # lourd bug
-    # "Ahuntsic - Cartierville",
-    # "Saint-Laurent"
-]
-arronds = [
-    "plaza",
-    "LaSalle",
-    "Ville-Marie",
-    "Côte-des-Neiges - Notre-Dame-de-Grâce",  # null
-    # "None",
-    "Montréal-Nord",
-    "Saint-Léonard",  # null
-    "Verdun",
-    "L'Île-Bizard - Sainte-Geneviève",  # present mais
-    "Sud-Ouest",  # null
-    "Villeray - Saint-Michel - Parc-Extension",
-    "Anjou",
-    "Lachine",
-    "Plateau-Mont-Royal",
-    "Rivière-des-Prairies - Pointe-aux-Trembles",
-    "Rosemont - La Petite-Patrie",
-    "Mercier - Hochelaga-Maisonneuve",
-    "Pierrefonds - Roxboro",
-    "Outremont",  # lourd bug
-    "Ahuntsic - Cartierville",
-    "Saint-Laurent"
-]
-
 PATH = "data/"
-
+DEFAULT_CONFIG_PATH = "configs/config_default.json"
 
 def filter(arronds=["Rosemont-La Petite-Patrie"], data_to_cut="", specific_arrond="Ville-Marie", data_sub_arronds="quartiers_arrodissement_villemarie.geojson"):
     l_out_file = []
@@ -221,7 +177,7 @@ def update(arronds, noms_sous_quartiers=[], specific_arrond="", data_sub_arronds
 
         for f_subset in f_subset_subarronds:
             print("XXXXXX", f_subset)
-            os.system("shst match " + f_subset + " \
+            os.system("shst " + f_subset + " \
                 --search-radius=15 \
                     --offset-line=10 \
                         --snap-side-of-street \
@@ -237,7 +193,7 @@ def update(arronds, noms_sous_quartiers=[], specific_arrond="", data_sub_arronds
 
             os.system("echo -n 'generate curblr... '")
 
-            cmd = f"shst match {f_subset_segment_out} --join-points \
+            cmd = f"shst {f_subset_segment_out} --join-points \
              --join-points-match-fields=PANNEAU_ID_RPA,CODE_RPA \
                 --search-radius=15 \
                  --snap-intersections \
@@ -268,7 +224,7 @@ def update(arronds, noms_sous_quartiers=[], specific_arrond="", data_sub_arronds
                 "..", "..", "curb-map", "src", "assets", "data")
             print(assets_curb_map)
             print(f_subset_curblr_out)
-            os.system("mv " + f_subset_curblr_out + " " + assets_curb_map)
+            #os.system("mv " + f_subset_curblr_out + " " + assets_curb_map)
 
             os.system("echo transfert to curb-map done")
             #os.system("node stats.js > data/mtl-subset-unmanaged.geojson")
@@ -278,15 +234,11 @@ def update(arronds, noms_sous_quartiers=[], specific_arrond="", data_sub_arronds
 
 
 if __name__ == "__main__":
-    os.system("nvm use 12.7.0")
-    ville_marie_quartiers = [
-        "DOWNTOWN",
-        "QUARTIER DES SPECTACLES",
-        "GAY VILLAGE",
-        "OLD MONTREAL",
-        "JEAN-DRAPEAU",
-    ]
-    specific_arrond = "Ville-Marie"
-    data_sub_arronds = "quartiers_arrodissement_villemarie.geojson"
-    # update(["LaSalle", "Ville-Marie"], ville_marie_quartiers, specific_arrond, data_sub_arronds)
-    update([arronds[0]])
+    try:
+        config_path = sys.argv[1]
+    except IndexError:
+        config_path = DEFAULT_CONFIG_PATH
+
+    with open(config_path) as config_file:
+        config = json.load(config_file)
+        update(**config)
