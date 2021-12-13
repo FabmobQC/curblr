@@ -5,7 +5,7 @@
 // However, having a proper validation script would still be a nice to have.
 
 const fs = require('fs');
-const rpaReg = require("../rpa_regexes");
+const rpaReg = require("../scripts/rpa_regexes");
 
 const ignoredValidations = {};
 

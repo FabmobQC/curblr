@@ -1,4 +1,4 @@
-const rpaReg = require("../rpa_regexes");
+const rpaReg = require("../scripts/rpa_regexes");
 
 describe("times", () => {
     test.each([

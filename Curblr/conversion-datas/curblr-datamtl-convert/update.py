@@ -143,15 +143,15 @@ def update(arronds, noms_sous_quartiers=[], specific_arrond="", data_sub_arronds
     os.system("echo -n 'create regulations... '")
     f_rpa_in = f"{INPUT_FOLDER_PATH}signalisation-codification-rpa.json"
     f_rpa_out = f"{INTERMEDIARY_FOLDER_PATH}signalisation-codification-rpa_withRegulation.json"
-    os.system(f"node rpa_to_regulations.js {f_rpa_in} {f_rpa_out}")
+    os.system(f"node scripts/rpa_to_regulations.js {f_rpa_in} {f_rpa_out}")
     os.system("echo 'done'")
     
     os.system("echo -n 'create pannonceau... '")
     os.system(
-        f"node pannonceau_to_regulations.js jsonpan {INTERMEDIARY_FOLDER_PATH}agregate-pannonceau-rpa.json")
+        f"node scripts/pannonceau_to_regulations.js jsonpan {INTERMEDIARY_FOLDER_PATH}agregate-pannonceau-rpa.json")
     os.system("echo -n ' ... '")
     os.system(
-        f"node pannonceau_to_regulations.js jsonmtl {INTERMEDIARY_FOLDER_PATH}agregate-signalisation.json")
+        f"node scripts/pannonceau_to_regulations.js jsonmtl {INTERMEDIARY_FOLDER_PATH}agregate-signalisation.json")
     os.system("echo 'done'")
    
     os.system("echo -n 'create subset... '")
@@ -160,7 +160,7 @@ def update(arronds, noms_sous_quartiers=[], specific_arrond="", data_sub_arronds
 
         f_subset = f"{INTERMEDIARY_FOLDER_PATH}mtl-subset-{arrond}.geojson"
         f_subset = f_subset.replace(" ", "")
-        os.system(f"node subset.js {f_subset} {arrond}")
+        os.system(f"node scripts/subset.js {f_subset} {arrond}")
 
         filter_min(f_subset, arrond, f"{INPUT_FOLDER_PATH}plaza-saint-hubert.geojson")
         
@@ -188,7 +188,7 @@ def update(arronds, noms_sous_quartiers=[], specific_arrond="", data_sub_arronds
             f_subset_in = f_subset.replace(".geojson", ".buffered.geojson")
             f_subset_segment_out = f_subset.replace(
                 ".geojson", "-segment.geojson")
-            os.system("node mtl_to_segment.js " +
+            os.system("node scripts/mtl_to_segment.js " +
                       f_subset_in + " > " + f_subset_segment_out)
             os.system("echo 'done'")
 
@@ -218,7 +218,7 @@ def update(arronds, noms_sous_quartiers=[], specific_arrond="", data_sub_arronds
                     ".filtred.geojson", ".curblr.json")
             f_subset_curblr_out = f_subset_curblr_out.replace(" ", "").lower()
 
-            os.system("node segment_to_curblr.js " +
+            os.system("node scripts/segment_to_curblr.js " +
                       f_subset_joined_in + " > " + OUTPUT_FOLDER_PATH + f_subset_curblr_out)
 
             assets_curb_map = os.path.join(
