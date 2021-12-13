@@ -205,11 +205,11 @@ if (typeof require !== 'undefined' && require.main === module) {
     const outputType = process.argv[2]; // "jsonmtl" or "jsonpan"
     const outputFilename = process.argv[3];
 
-    const file = "data/signalisation_stationnement.geojson"
+    const file = "data/input/signalisation_stationnement.geojson"
     const mtlData = fs.readFileSync(file);
     const mtlDataJson = JSON.parse(mtlData);
 
-    const rpaCodeJson = fs.readFileSync('data/signalisation-codification-rpa_withRegulation.json');
+    const rpaCodeJson = fs.readFileSync('data/intermediary/signalisation-codification-rpa_withRegulation.json');
     const rpaCode = JSON.parse(rpaCodeJson);
 
     const json = doMainThing(mtlDataJson, rpaCode, outputType);

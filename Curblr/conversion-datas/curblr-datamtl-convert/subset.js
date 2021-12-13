@@ -24,7 +24,7 @@ function filter(input, arronds) {
 if (typeof require !== 'undefined' && require.main === module) {
 
     const outputFilename = process.argv[2];
-    const inputGeojson = fs.readFileSync('data/agregate-signalisation.json');
+    const inputGeojson = fs.readFileSync('data/intermediary/agregate-signalisation.json');
     const input = JSON.parse(inputGeojson);
     process.argv.shift();
     process.argv.shift();

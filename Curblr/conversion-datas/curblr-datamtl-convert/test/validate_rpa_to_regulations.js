@@ -94,9 +94,9 @@ function validateIsParking(description) {
 }
 
 function validate() {
-    const convertedRpa = loadFromJsonFile("../data/signalisation-codification-rpa_withRegulation.json");
-    const originalRpa = loadFromJsonFile("../data/signalisation-codification-rpa.json");
-    const signalisation = loadFromJsonFile("../data/signalisation_stationnement.geojson");
+    const convertedRpa = loadFromJsonFile("../data/intermediary/signalisation-codification-rpa_withRegulation.json");
+    const originalRpa = loadFromJsonFile("../data/input/signalisation-codification-rpa.json");
+    const signalisation = loadFromJsonFile("../data/input/signalisation_stationnement.geojson");
     const usedRpaCodes = getUsedRpaCodes(signalisation);
 
     if (!validateLengths(convertedRpa, originalRpa)) {

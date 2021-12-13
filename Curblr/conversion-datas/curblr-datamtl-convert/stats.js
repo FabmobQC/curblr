@@ -1,10 +1,10 @@
 const fs = require('fs');
 
-const curblrData = fs.readFileSync('data/mtl-subset-segment.curblr.json');
-const mtlData = fs.readFileSync('data/mtl-subset-segment.geojson');
+const curblrData = fs.readFileSync('data/intermediary/mtl-subset-segment.curblr.json');
+const mtlData = fs.readFileSync('data/intermediary/mtl-subset-segment.geojson');
 const mtlFeatur = JSON.parse(mtlData).features;
 try{
-    const unmatchedData = fs.readFileSync('data/mtl-subset-segment.unmatched.geojson');
+    const unmatchedData = fs.readFileSync('data/intermediary/mtl-subset-segment.unmatched.geojson');
     var unmatched = JSON.parse(unmatchedData).features;
 } catch{
     var unmatched = [];

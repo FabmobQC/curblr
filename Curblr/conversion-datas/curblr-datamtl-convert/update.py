@@ -6,6 +6,9 @@ from turfpy.measurement import boolean_point_in_polygon
 from geojson import Point, Polygon, Feature
 
 PATH = "data/"
+INPUT_FOLDER_PATH = "data/input/"
+INTERMEDIARY_FOLDER_PATH = "data/intermediary/"
+OUTPUT_FOLDER_PATH = "data/output/"
 DEFAULT_CONFIG_PATH = "configs/config_default.json"
 
 def filter(arronds=["Rosemont-La Petite-Patrie"], data_to_cut="", specific_arrond="Ville-Marie", data_sub_arronds="quartiers_arrodissement_villemarie.geojson"):
@@ -58,11 +61,11 @@ def filter(arronds=["Rosemont-La Petite-Patrie"], data_to_cut="", specific_arron
             outfile = "mtl-signalec-" + \
                 arrondissement_montreal.replace(
                     " ", "-").replace("+", "-") + ".filtred.geojson"
-        with open(PATH + outfile, mode="w") as f:
+        with open(INTERMEDIARY_FOLDER_PATH + outfile, mode="w") as f:
             json.dump(data, f)
         print("filtrage terminé")
 
-        l_out_file.append(PATH + outfile)
+        l_out_file.append(INTERMEDIARY_FOLDER_PATH + outfile)
 
     return l_out_file
 
@@ -110,18 +113,18 @@ def filter_min(data_to_cut, arrondissement_montreal, data_sub_arronds):
         outfile = "mtl-signalec-" + \
             arrondissement_montreal.replace(
                 " ", "-").replace("+", "-") + ".filtred.geojson"
-    with open(PATH + outfile, mode="w") as f:
+    with open(INTERMEDIARY_FOLDER_PATH + outfile, mode="w") as f:
         json.dump(data, f)
     print("filtrage terminé")
 
-    l_out_file.append(PATH + outfile)
+    l_out_file.append(INTERMEDIARY_FOLDER_PATH + outfile)
 
     return l_out_file
 
 
 def check_avaialble_arronds():
     arrondissements_from_json = set([])
-    agregate_sign_file = 'data/agregate-signalisation.json'
+    agregate_sign_file = f'{INTERMEDIARY_FOLDER_PATH}agregate-signalisation.json'
     with open(agregate_sign_file) as f:
         data = json.load(f)
         for i in (data["features"]):
@@ -133,35 +136,33 @@ def check_avaialble_arronds():
 
 def update(arronds, noms_sous_quartiers=[], specific_arrond="", data_sub_arronds=""):
     os.system("echo -n 'Retrieve online data... '")
-    os.system("wget -N -P data https://storage.googleapis.com/dx-montreal/resources/52cecff0-2644-4258-a2d1-0c4b3b116117/signalisation_stationnement.geojson")
-    os.system("wget -N -P data https://storage.googleapis.com/dx-montreal/resources/0795f422-b53b-41ca-89be-abc1069a88c9/signalisation-codification-rpa.json")
+    os.system(f"wget -N -P {INPUT_FOLDER_PATH} https://storage.googleapis.com/dx-montreal/resources/52cecff0-2644-4258-a2d1-0c4b3b116117/signalisation_stationnement.geojson")
+    os.system(f"wget -N -P {INPUT_FOLDER_PATH} https://storage.googleapis.com/dx-montreal/resources/0795f422-b53b-41ca-89be-abc1069a88c9/signalisation-codification-rpa.json")
     os.system("echo 'done'")
 
     os.system("echo -n 'create regulations... '")
-    f_rpa_in = "data/signalisation-codification-rpa.json"
-    f_rpa_out = "data/signalisation-codification-rpa_withRegulation.json"
+    f_rpa_in = f"{INPUT_FOLDER_PATH}signalisation-codification-rpa.json"
+    f_rpa_out = f"{INTERMEDIARY_FOLDER_PATH}signalisation-codification-rpa_withRegulation.json"
     os.system(f"node rpa_to_regulations.js {f_rpa_in} {f_rpa_out}")
     os.system("echo 'done'")
     
     os.system("echo -n 'create pannonceau... '")
     os.system(
-        "node pannonceau_to_regulations.js jsonpan data/agregate-pannonceau-rpa.json")
+        f"node pannonceau_to_regulations.js jsonpan {INTERMEDIARY_FOLDER_PATH}agregate-pannonceau-rpa.json")
     os.system("echo -n ' ... '")
     os.system(
-        "node pannonceau_to_regulations.js jsonmtl data/agregate-signalisation.json")
+        f"node pannonceau_to_regulations.js jsonmtl {INTERMEDIARY_FOLDER_PATH}agregate-signalisation.json")
     os.system("echo 'done'")
-
-    os.system("rm data/mtl-subset*")
    
     os.system("echo -n 'create subset... '")
     # with open("s.txt", "w", encoding="utf-8") as f:
     for arrond in arronds:
 
-        f_subset = f"data/mtl-subset-{arrond}.geojson"
+        f_subset = f"{INTERMEDIARY_FOLDER_PATH}mtl-subset-{arrond}.geojson"
         f_subset = f_subset.replace(" ", "")
         os.system(f"node subset.js {f_subset} {arrond}")
 
-        filter_min(f_subset, arrond, "plaza-saint-hubert.geojson")
+        filter_min(f_subset, arrond, f"{INPUT_FOLDER_PATH}plaza-saint-hubert.geojson")
         
         os.system("echo 'done'")
 
@@ -177,7 +178,7 @@ def update(arronds, noms_sous_quartiers=[], specific_arrond="", data_sub_arronds
 
         for f_subset in f_subset_subarronds:
             print("XXXXXX", f_subset)
-            os.system("shst " + f_subset + " \
+            os.system("shst match " + f_subset + " \
                 --search-radius=15 \
                     --offset-line=10 \
                         --snap-side-of-street \
@@ -193,7 +194,7 @@ def update(arronds, noms_sous_quartiers=[], specific_arrond="", data_sub_arronds
 
             os.system("echo -n 'generate curblr... '")
 
-            cmd = f"shst {f_subset_segment_out} --join-points \
+            cmd = f"shst match {f_subset_segment_out} --join-points \
              --join-points-match-fields=PANNEAU_ID_RPA,CODE_RPA \
                 --search-radius=15 \
                  --snap-intersections \
@@ -218,7 +219,7 @@ def update(arronds, noms_sous_quartiers=[], specific_arrond="", data_sub_arronds
             f_subset_curblr_out = f_subset_curblr_out.replace(" ", "").lower()
 
             os.system("node segment_to_curblr.js " +
-                      f_subset_joined_in + " > " + f_subset_curblr_out)
+                      f_subset_joined_in + " > " + OUTPUT_FOLDER_PATH + f_subset_curblr_out)
 
             assets_curb_map = os.path.join(
                 "..", "..", "curb-map", "src", "assets", "data")
