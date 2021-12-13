@@ -186,7 +186,7 @@ def update(arronds, noms_sous_quartiers=[], specific_arrond="", data_sub_arronds
     f_rpa_out = "data/signalisation-codification-rpa_withRegulation.json"
     os.system(f"node rpa_to_regulations.js {f_rpa_in} {f_rpa_out}")
     os.system("echo 'done'")
-
+    
     os.system("echo -n 'create pannonceau... '")
     os.system(
         "node pannonceau_to_regulations.js jsonpan data/agregate-pannonceau-rpa.json")
@@ -196,16 +196,17 @@ def update(arronds, noms_sous_quartiers=[], specific_arrond="", data_sub_arronds
     os.system("echo 'done'")
 
     os.system("rm data/mtl-subset*")
+   
     os.system("echo -n 'create subset... '")
     # with open("s.txt", "w", encoding="utf-8") as f:
     for arrond in arronds:
 
-        f_subset = "data/mtl-subset-" + arrond + ".geojson"
+        f_subset = f"data/mtl-subset-{arrond}.geojson"
         f_subset = f_subset.replace(" ", "")
-        os.system("node subset.js " + arrond + " > " + f_subset)
+        os.system(f"node subset.js {f_subset} {arrond}")
 
         filter_min(f_subset, arrond, "plaza-saint-hubert.geojson")
-
+        
         os.system("echo 'done'")
 
         f_subset_subarronds = []
