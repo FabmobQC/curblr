@@ -72,7 +72,8 @@ function getMtlPotWithPannonceau(mtlPot, rpaCode) {
     },{all:[],rpa:{}});
 }
 
-function mystery1(mtlPotWithPannonceau) {
+// Take a panonceau from unmmanaged, add it to managed, and add its rule to tempRules
+function handleFirstPanonceau(mtlPotWithPannonceau) {
     Object.values(mtlPotWithPannonceau.rpa)
     .forEach( elem => {
         pannonceau = elem.unmmanaged.shift();
@@ -137,29 +138,18 @@ function updateSomeRules(mtlPotWithPannonceau) {
     updateRules(mtlPotWithPannonceau, [1528,16303])
 }
 
-function mystery2(mtlPotWithPannonceau) {
-    // pannonceau timespan suplementaire
+function handlePanonceauWithTimeSpans(mtlPotWithPannonceau) {
     Object.values(mtlPotWithPannonceau.rpa)
-    .filter(
-        elem => elem.unmmanaged.some(
-            val => !!val.RULES
-            && val.RULES.length > 0 
-            && val.RULES.some(
-                rule => !rule.priorityCategory && !!rule.timeSpans && rule.timeSpans.length > 0
-            )
-        )
-    )
     .forEach(
         elem => {
             elem.unmmanaged = elem.unmmanaged.filter(
                 val => {
                     if (
-                        !!val.RULES
-                        && val.RULES.length > 0
-                        && val.RULES.some(
-                            rule => !rule.priorityCategory
-                            && !!rule.timeSpans
-                            && rule.timeSpans.length > 0
+                        val.RULES.some(
+                            rule => (
+                                !rule.priorityCategory
+                                && rule.timeSpans
+                            )
                         )
                     ) {
                         pannonceau = val;
@@ -175,12 +165,15 @@ function mystery2(mtlPotWithPannonceau) {
                     return true; 
                 }
             );
-    })
+        }
+    )
 }
 
-function mystery3(mtlPotWithPannonceau) {
+// Indicates all the small signposts modifying the bigger signpost have been handled
+function markRegulationsCompleted(mtlPotWithPannonceau) {
     Object.values(mtlPotWithPannonceau.rpa)
     .forEach(elem => {
+        // If there is no "unmanaged" rpa left, then the regulation is completed
         if (elem.unmmanaged.length == 0) {
             elem.regulations = elem.tempRules;
             elem.tempRules = null;
@@ -192,10 +185,10 @@ function doMainThing(mtlData, rpaCode, outputType) {
     const mtlFeatures = mtlData.features;
     const mtlPot = groupByPoteauId(mtlFeatures);
     const mtlPotWithPannonceau = getMtlPotWithPannonceau(mtlPot, rpaCode);
-    mystery1(mtlPotWithPannonceau);
+    handleFirstPanonceau(mtlPotWithPannonceau);
     updateSomeRules(mtlPotWithPannonceau);
-    mystery2(mtlPotWithPannonceau);
-    mystery3(mtlPotWithPannonceau);
+    handlePanonceauWithTimeSpans(mtlPotWithPannonceau);
+    markRegulationsCompleted(mtlPotWithPannonceau);
 
     if (outputType=="jsonmtl") {
         const geojson = {"crs":mtlData.crs};
