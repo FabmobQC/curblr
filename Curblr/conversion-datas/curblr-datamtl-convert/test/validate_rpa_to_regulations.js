@@ -1,5 +1,11 @@
+// This script originally had for goal to validate the results of rpa_to_regulations.js
+// However, rpa_to_regulations changed a lot since then, and unit tests have been added.
+// It is currently only a mix of ideas of how the validation could be achieved.
+// It might not be really useful, and it could even be misleading.
+// However, having a proper validation script would still be a nice to have.
+
 const fs = require('fs');
-const { descriptionContainsTimespan } = require("../rpa_to_regulations");
+const rpaReg = require("../rpa_regexes");
 
 const ignoredValidations = {};
 
@@ -105,15 +111,8 @@ function validate() {
             continue;
         }
 
-        if (!descriptionContainsTimespan(rpa.description)) {
-            // There's nothing to do without timespan
-            addIgnoredValidation("no timespan");
-            continue;
-        }
-
-        // TODO: handle maxStays.
-        if (/\d{1,2}\s*min/i.test(rpa.description)) {
-            addIgnoredValidation("maxStay");
+        if (!rpaReg.anyTimeIndication.test(rpa.description)) {
+            addIgnoredValidation("no time indication");
             continue;
         }
 

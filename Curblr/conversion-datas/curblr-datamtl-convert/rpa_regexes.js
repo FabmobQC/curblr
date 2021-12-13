@@ -179,16 +179,13 @@ const maxStayHStr = `(:?${notBeforeMaxStayHStr}${maxStayHBasicStr}${notAfterMaxS
 const maxStayStr = `(${maxStayMinStr})|(${maxStayHStr})`;
 const maxStay = new RegExp(maxStayStr, "i");
 
-const anyTimespanStr = [
+const anyTimeIndicationStr = [
     timeStr,
     maxStayStr,
     anyDayOfWeekStr,
     anyMonth,
 ].join("|")
-const anyTimespan = new RegExp(anyTimespanStr, "i");
-
-const noTimespanBeforeStr = `(?<!(${anyTimespanStr}).*)`;
-const noTimespanAfterStr = `(?!.*(${anyTimespanStr}))`;
+const anyTimeIndication = new RegExp(anyTimeIndicationStr, "i");
 
 // Match variations of the word "débarcadère"
 // contains 'DEBAR.' or 'DEBARCADERE', with or without accents
@@ -225,7 +222,6 @@ module.exports = {
     daysOfMonthIntervalDayAbsent,
     daysOfMonthIntervalSlashed,
     daysOfMonthInterval,
-    anyTimespan,
     weekTimeDaysFirst,
     weekTimeDaysSecond,
     weekTimeDaysAbsent,
@@ -236,4 +232,5 @@ module.exports = {
     weekTime,
     sameDatesTimeSpan,
     debarcadere,
+    anyTimeIndication,
 }

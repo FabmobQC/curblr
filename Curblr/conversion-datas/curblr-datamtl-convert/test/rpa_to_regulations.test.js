@@ -1,4 +1,5 @@
 const rpaToRegulations = require("../rpa_to_regulations");
+const rpaReg = require("../rpa_regexes");
 
 /*
     uncertain: behaviour that is not certainly right or wrong

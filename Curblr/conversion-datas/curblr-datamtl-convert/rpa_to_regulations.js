@@ -1,10 +1,6 @@
 const fs = require('fs');
 const rpaReg = require("./rpa_regexes")
 
-function descriptionContainsTimespan(description) {
-    return rpaReg.anyTimespan.test(description);
-}
-
 const irrelevantExpressions = [
     "COLLECTE DES ORDURES",
     "DECHETS INTERDITS",
@@ -53,6 +49,17 @@ function getActivity(description, timeSpans, maxStay) {
     }
 
     return 'irrelevant';
+}
+
+function getUserClasses(description) {
+    if (/handica(e|é|É)/i.test(description)) {
+        return {
+            "classes": ["handicap"],
+          }
+    }
+    else {
+        return undefined;
+    }
 }
 
 function getMaxStay(description) {
@@ -428,7 +435,6 @@ module.exports = {
     getRule,
     getRegulations,
     getTimeSpans,
-    descriptionContainsTimespan,
     extractFirstTwoDigitsNumber,
     extractMonth,
     getEffectiveDatesFromDayFirstSyntax,
