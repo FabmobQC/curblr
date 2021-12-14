@@ -112,18 +112,6 @@ def filter_min(data_to_cut, arrondissement_montreal, data_sub_arronds):
     return l_out_file
 
 
-def check_avaialble_arronds():
-    arrondissements_from_json = set([])
-    agregate_sign_file = f'{INTERMEDIARY_FOLDER_PATH}/agregate-signalisation.json'
-    with open(agregate_sign_file) as f:
-        data = json.load(f)
-        for i in (data["features"]):
-            a = i["properties"]["NOM_ARROND"]
-            arrondissements_from_json.add(a)
-        for i in arrondissements_from_json:
-            print(i)
-
-
 def update(arronds, noms_sous_quartiers=[], specific_arrond="", data_sub_arronds=""):
     print("Retrieve online data... ", end="")
     os.system(f"wget -N -P {INPUT_FOLDER_PATH} https://storage.googleapis.com/dx-montreal/resources/52cecff0-2644-4258-a2d1-0c4b3b116117/signalisation_stationnement.geojson")
