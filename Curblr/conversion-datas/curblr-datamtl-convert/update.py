@@ -135,26 +135,26 @@ def check_avaialble_arronds():
 
 
 def update(arronds, noms_sous_quartiers=[], specific_arrond="", data_sub_arronds=""):
-    os.system("echo -n 'Retrieve online data... '")
+    print("Retrieve online data... ", end="")
     os.system(f"wget -N -P {INPUT_FOLDER_PATH} https://storage.googleapis.com/dx-montreal/resources/52cecff0-2644-4258-a2d1-0c4b3b116117/signalisation_stationnement.geojson")
     os.system(f"wget -N -P {INPUT_FOLDER_PATH} https://storage.googleapis.com/dx-montreal/resources/0795f422-b53b-41ca-89be-abc1069a88c9/signalisation-codification-rpa.json")
-    os.system("echo 'done'")
+    print("done")
 
-    os.system("echo -n 'create regulations... '")
+    print("create regulations... ", end="")
     f_rpa_in = f"{INPUT_FOLDER_PATH}signalisation-codification-rpa.json"
     f_rpa_out = f"{INTERMEDIARY_FOLDER_PATH}signalisation-codification-rpa_withRegulation.json"
     os.system(f"node scripts/rpa_to_regulations.js {f_rpa_in} {f_rpa_out}")
-    os.system("echo 'done'")
+    print("done")
     
-    os.system("echo -n 'create pannonceau... '")
+    print("create pannonceau... ", end="")
     os.system(
         f"node scripts/pannonceau_to_regulations.js jsonpan {INTERMEDIARY_FOLDER_PATH}agregate-pannonceau-rpa.json")
-    os.system("echo -n ' ... '")
+    print(" ... ", end="")
     os.system(
         f"node scripts/pannonceau_to_regulations.js jsonmtl {INTERMEDIARY_FOLDER_PATH}agregate-signalisation.json")
-    os.system("echo 'done'")
+    print("done")
    
-    os.system("echo -n 'create subset... '")
+    print("create subset... ", end="")
     # with open("s.txt", "w", encoding="utf-8") as f:
     for arrond in arronds:
 
@@ -164,7 +164,7 @@ def update(arronds, noms_sous_quartiers=[], specific_arrond="", data_sub_arronds
 
         filter_min(f_subset, arrond, f"{INPUT_FOLDER_PATH}plaza-saint-hubert.geojson")
         
-        os.system("echo 'done'")
+        print("done")
 
         f_subset_subarronds = []
         if len(noms_sous_quartiers) > 0 and specific_arrond != "" and data_sub_arronds != "" and arrond == specific_arrond:
@@ -184,15 +184,15 @@ def update(arronds, noms_sous_quartiers=[], specific_arrond="", data_sub_arronds
                         --snap-side-of-street \
                                 --buffer-points")
 
-            os.system("echo -n 'transform to segment... '")
+            print("transform to segment... ", end="")
             f_subset_in = f_subset.replace(".geojson", ".buffered.geojson")
             f_subset_segment_out = f_subset.replace(
                 ".geojson", "-segment.geojson")
             os.system("node scripts/mtl_to_segment.js " +
                       f_subset_in + " " + f_subset_segment_out)
-            os.system("echo 'done'")
+            print("done")
 
-            os.system("echo -n 'generate curblr... '")
+            print("generate curblr... ", end="")
 
             cmd = f"shst match {f_subset_segment_out} --join-points \
              --join-points-match-fields=PANNEAU_ID_RPA,CODE_RPA \
@@ -227,7 +227,7 @@ def update(arronds, noms_sous_quartiers=[], specific_arrond="", data_sub_arronds
             print(f_subset_curblr_out)
             #os.system("mv " + f_subset_curblr_out + " " + assets_curb_map)
 
-            os.system("echo transfert to curb-map done")
+            print("transfert to curb-map done")
             #os.system("node stats.js > data/mtl-subset-unmanaged.geojson")
             # f.write('{ path: "' + f_subset_curblr_out + '", label: "mtl - ' + arrond + '" },\n')
 
