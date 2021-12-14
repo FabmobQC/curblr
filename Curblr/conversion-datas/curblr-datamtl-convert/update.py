@@ -219,7 +219,7 @@ def update(arronds, noms_sous_quartiers=[], specific_arrond="", data_sub_arronds
             f_subset_curblr_out = f_subset_curblr_out.replace(" ", "").lower()
 
             os.system("node scripts/segment_to_curblr.js " +
-                      f_subset_joined_in + " > " + OUTPUT_FOLDER_PATH + f_subset_curblr_out)
+                      f_subset_joined_in + " " + OUTPUT_FOLDER_PATH + f_subset_curblr_out)
 
             assets_curb_map = os.path.join(
                 "..", "..", "curb-map", "src", "assets", "data")
