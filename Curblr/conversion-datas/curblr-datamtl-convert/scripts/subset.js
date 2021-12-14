@@ -1,7 +1,7 @@
 // curblrizes a geojson output from sharedstreets-js
 
 
-const fs = require('fs');
+const jsonHelper = require("./json_helper");
 
 function filter(input, arronds) {
     // This function is actually not filtering anything. arronds is not even used.
@@ -24,15 +24,12 @@ function filter(input, arronds) {
 if (typeof require !== 'undefined' && require.main === module) {
 
     const outputFilename = process.argv[2];
-    const inputGeojson = fs.readFileSync('data/intermediary/agregate-signalisation.json');
-    const input = JSON.parse(inputGeojson);
+    const input = jsonHelper.load('data/intermediary/agregate-signalisation.json');
     process.argv.shift();
     process.argv.shift();
     const arrond_from_cmd = process.argv.join(" ");
     arronds = [arrond_from_cmd]
 
-    const filtered = filter(input, arronds);
-    const json = JSON.stringify(filtered, null, 2);
-
-    fs.writeFile(outputFilename, json, err => {if (err) throw err});
+    const output = filter(input, arronds);
+    jsonHelper.write(outputFilename, output, true);
 }

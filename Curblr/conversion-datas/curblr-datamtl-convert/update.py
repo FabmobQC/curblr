@@ -189,7 +189,7 @@ def update(arronds, noms_sous_quartiers=[], specific_arrond="", data_sub_arronds
             f_subset_segment_out = f_subset.replace(
                 ".geojson", "-segment.geojson")
             os.system("node scripts/mtl_to_segment.js " +
-                      f_subset_in + " > " + f_subset_segment_out)
+                      f_subset_in + " " + f_subset_segment_out)
             os.system("echo 'done'")
 
             os.system("echo -n 'generate curblr... '")

@@ -1,4 +1,4 @@
-const fs = require('fs');
+const jsonHelper = require('./json_helper');
 
 function groupByPoteauId(mtlFeatures) {
     return mtlFeatures.reduce((acc,val) => {
@@ -194,10 +194,10 @@ function doMainThing(mtlData, rpaCode, outputType) {
         const geojson = {"crs":mtlData.crs};
         geojson['type'] = 'FeatureCollection';
         geojson['features'] = mtlPotWithPannonceau.all
-        return JSON.stringify(geojson, null, 2);
+        return geojson;
     }
     if (outputType=="jsonpan") {
-        return JSON.stringify(mtlPotWithPannonceau.rpa, null, 2);
+        return mtlPotWithPannonceau.rpa;
     }
 }
 
@@ -205,14 +205,10 @@ if (typeof require !== 'undefined' && require.main === module) {
     const outputType = process.argv[2]; // "jsonmtl" or "jsonpan"
     const outputFilename = process.argv[3];
 
-    const file = "data/input/signalisation_stationnement.geojson"
-    const mtlData = fs.readFileSync(file);
-    const mtlDataJson = JSON.parse(mtlData);
+    const mtlDataJson = jsonHelper.load("data/input/signalisation_stationnement.geojson");
+    const rpaCode = jsonHelper.load("data/intermediary/signalisation-codification-rpa_withRegulation.json");
 
-    const rpaCodeJson = fs.readFileSync('data/intermediary/signalisation-codification-rpa_withRegulation.json');
-    const rpaCode = JSON.parse(rpaCodeJson);
+    const output = doMainThing(mtlDataJson, rpaCode, outputType);
 
-    const json = doMainThing(mtlDataJson, rpaCode, outputType);
-
-    fs.writeFile(outputFilename, json, err => {if (err) throw err});
+    jsonHelper.write(outputFilename, output, true);
 }

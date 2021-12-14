@@ -1,6 +1,6 @@
 // curblrizes a geojson output from sharedstreets-js
 
-const fs = require('fs');
+const jsonHelper = require("./json_helper");
 
 function convertToCurblr(rpaCode, input) {
   const geojson = {};
@@ -53,19 +53,16 @@ function convertToCurblr(rpaCode, input) {
 }
 
 if (typeof require !== 'undefined' && require.main === module) {
-  const file_p = process.argv[2];
-  const inputGeojson = fs.readFileSync(file_p);
-  const input = JSON.parse(inputGeojson);
-  const rpaCodeJson = fs.readFileSync('data/intermediary/signalisation-codification-rpa_withRegulation.json');
-  let rpaCode = JSON.parse(rpaCodeJson);
-  const agregateRpaCodeJson = fs.readFileSync('data/intermediary/agregate-pannonceau-rpa.json');
-  const agregateRpaCode = JSON.parse(agregateRpaCodeJson);
+  const inputFilename = process.argv[2];
   const outputFilename = process.argv[3];
 
-  rpaCode = {...rpaCode, ...agregateRpaCode}
+  const input = jsonHelper.load(inputFilename);
+  let rpaCode = jsonHelper.load('data/intermediary/signalisation-codification-rpa_withRegulation.json');
+  const agregateRpaCode = jsonHelper.load('data/intermediary/agregate-pannonceau-rpa.json');
 
-  const curblr = convertToCurblr(rpaCode, input);
-  const json = JSON.stringify(curblr, null, 2);
+  rpaCode = {...rpaCode, ...agregateRpaCode};
 
-  fs.writeFile(outputFilename, json, err => {if (err) throw err});
+  const output = convertToCurblr(rpaCode, input);
+  
+  jsonHelper.write(outputFilename, output, false);
 }

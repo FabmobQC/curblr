@@ -1,4 +1,4 @@
-const fs = require('fs');
+const jsonHelper = require("./json_helper")
 const rpaReg = require("./rpa_regexes")
 
 const irrelevantExpressions = [
@@ -418,12 +418,10 @@ if (typeof require !== 'undefined' && require.main === module) {
     const inputFilename = process.argv[2];
     const outputFilename = process.argv[3];
 
-    const rpaCodificationJson = fs.readFileSync(inputFilename);
-    const rpaCodification = JSON.parse(rpaCodificationJson);
+    const rpaCodification = jsonHelper.load(inputFilename);
 
-    const rpaInfos = convert(rpaCodification);
-    const rpaInfosJson = JSON.stringify(rpaInfos, null, 2);
-    fs.writeFile(outputFilename, rpaInfosJson, err => {if (err) throw err});
+    const output = convert(rpaCodification);
+    jsonHelper.write(outputFilename, output, true);
 }
 
 module.exports = {
