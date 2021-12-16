@@ -592,7 +592,129 @@ describe("sameDatesTimeSpan", () => {
     });
 })
 
-describe("activities", () => {
+
+describe("user class", () => {
+    test.each([
+        ["\\P RESERVE HANDICAPES 09h30-21h", true],
+        ["\\P EXCEPTE HANDICAPES 10h-20h 21 JUIN AU 1 SEPT.", true],
+        ["\\P 04h-05h 16h30-23h30 EXCEPTE SERVICES ET CANTINES COMMUNAUTAIRES AUTORISÉS", true],
+        ["P RESERVE 21h-08h VEHICULES MUNIS D'UN PERMIS S3R", true],
+        ["\\P RESERVE HANDICAPES 09h30-21h", true],
+        ["PANONCEAU EXCEPTE DEBARCADERE GARDERIE 15 MINUTES", true],
+        ["P 2H - 9H @ 16H EXCEPTÉ MARDI", false],
+        ["PANONCEAU EXCEPTE PERIODE DE LIVRAISON", false],
+        ["PANONCEAU EXCEPTE  09-17h MER. 15 MARS AU 15 NOV.", false],
+        ["PANONCEAU VOIE RESERVEE SEULEMENT", false],
+        ["TEST", false],
+    ])("hasUserClass.test(%p)", (value, expected) => {
+        const result = rpaReg.hasUserClass.test(value);
+        expect(result).toBe(expected);
+    });
+
+    test.each([
+        [
+            "\\P RESERVE HANDICAPES 09h30-21h",
+            "HANDICAPES 09h30-21h"
+        ],
+        [
+            "\\P EXCEPTE HANDICAPES 10h-20h 21 JUIN AU 1 SEPT.",
+            "HANDICAPES 10h-20h 21 JUIN AU 1 SEPT."
+        ],
+        [
+            "\\P 04h-05h 16h30-23h30 EXCEPTE SERVICES ET CANTINES COMMUNAUTAIRES AUTORISÉS",
+            "SERVICES ET CANTINES COMMUNAUTAIRES AUTORISÉS"
+        ],
+        [
+            "P RESERVE 21h-08h VEHICULES MUNIS D'UN PERMIS S3R",
+            "VEHICULES MUNIS D'UN PERMIS S3R"
+        ],
+        [
+            "P 2H - 9H @ 16H EXCEPTÉ MARDI",
+            ""
+        ],
+        [
+            "P RÉSERVÉ SEULEMENT DÉTENTEURS DE PERMIS #",
+            "DÉTENTEURS DE PERMIS #"
+        ],
+        [
+            "PANONCEAU EXCEPTE DEBARCADERE GARDERIE 15 MINUTES",
+            "GARDERIE 15 MINUTES"
+        ],
+        [
+            "PANONCEAU DE STATIONNEMENT (EXCEPTE VEH DE LA STM)",
+            "VEH DE LA STM)",
+        ],
+    ])("'%s'.replace(rpaReg.userClassLeftTrimmer, '')", (value, expected) => {
+        const result = value.replace(rpaReg.userClassLeftTrimmer, "");
+        expect(result).toBe(expected);
+    });
+
+    test.each([
+        [
+            "HANDICAPES 09h30-21h",
+            "HANDICAPES"
+        ],
+        [
+            "HANDICAPES de 09h30 à 21h",
+            "HANDICAPES"
+        ],
+        [
+            "HANDICAPES 10h-20h 21 JUIN AU 1 SEPT.",
+            "HANDICAPES"
+        ],
+        [
+            "SERVICES ET CANTINES COMMUNAUTAIRES AUTORISÉS",
+            "SERVICES ET CANTINES COMMUNAUTAIRES AUTORISÉS"
+        ],
+        [
+            "VEHICULES MUNIS D'UN PERMIS S3R",
+            "VEHICULES MUNIS D'UN PERMIS S3R"
+        ],
+        [
+            "AUTOBUS TOURISTIQUES 2h",
+            "AUTOBUS TOURISTIQUES"
+        ],
+        [
+            "S3R 09-23h       (2 SECTEURS)",
+            "S3R"
+        ],
+        [
+            "S3R          (EN TOUT TEMPS)",
+            "S3R"
+        ],
+        [
+            "S3R EN TOUT TEMPS",
+            "S3R"
+        ],
+        [
+            "VEH DE LA STM)",
+            "VEH DE LA STM",
+        ],
+        [
+            "",
+            ""
+        ]
+    ])("'%s'.replace(rpaReg.userClassRightTrimmer, '')", (value, expected) => {
+        const result = value.replace(rpaReg.userClassRightTrimmer, "");
+        expect(result).toBe(expected);
+    });
+})
+
+describe("exception time", () => {
+    test.each([
+        ["EXCEPTÉ MARDI", "EXCEPTÉ MARDI"],
+        [
+            "excepte 1h-2h 1er jan à 2 fev. 3h30 @ 4h mars 3 au avril 4",
+            "excepte 1h-2h 1er jan à 2 fev. 3h30 @ 4h mars 3 au avril 4", // hopefully the data does not have anything such
+        ],
+        ["TEST", undefined],
+    ])("rpaReg.exceptionTime.exec('%s')", (value, expected) => {
+        const result = rpaReg.getExecFirstMatch(rpaReg.exceptionTime, value);
+        expect(result).toBe(expected);
+    });
+})
+
+describe("keywords", () => {
     test.each([
         ["DÉBARCADÈRE", "DÉBARCADÈRE"],
         ["DEBARCADERE", "DEBARCADERE"],
@@ -601,7 +723,28 @@ describe("activities", () => {
         ["TEST", undefined],
     ])("rpaReg.debarcadere.exec('%s')", (value, expected) => {
         rpaReg.debarcadere.lastIndex = 0;
-        const result = rpaReg.getExecFirstMatch(rpaReg.debarcadere, value); // second call
+        const result = rpaReg.getExecFirstMatch(rpaReg.debarcadere, value);
+        expect(result).toBe(expected);
+    });
+
+    test.each([
+        ["RÉSERVÉ", "RÉSERVÉ"],
+        ["RESERVE", "RESERVE"],
+        ["reser.", "reser."],
+        ["réser.", "réser."],
+        ["RESERVEE", undefined],
+        ["TEST", undefined],
+    ])("rpaReg.reservationKeyword.exec('%s')", (value, expected) => {
+        const result = rpaReg.getExecFirstMatch(rpaReg.reservationKeyword, value);
+        expect(result).toBe(expected);
+    });
+
+    test.each([
+        ["EXCEPTE", "EXCEPTE"],
+        ["EXCEPTÉ", "EXCEPTÉ"],
+        ["TEST", undefined],
+    ])("rpaReg.exceptionKeyword.exec('%s')", (value, expected) => {
+        const result = rpaReg.getExecFirstMatch(rpaReg.exceptionKeyword, value);
         expect(result).toBe(expected);
     });
 })

@@ -3,6 +3,7 @@ const timeStr = "\\d{1,2}\\s*h\\d{0,2}";
 const time = new RegExp(timeStr, "ig");
 
 const timeIntervalConnecterStr = "\\s*[Aaà@-]\\s*";
+const specialTimeIntervalSTr = "\\b\\d{1,2}-\\d{1,2}h"; // ex: 09-17h
 const timeIntervalStr = `(?:${timeStr})${timeIntervalConnecterStr}(?:${timeStr})`;
 const timeInterval = new RegExp(timeIntervalStr, "ig");
 
@@ -189,7 +190,40 @@ const anyTimeIndication = new RegExp(anyTimeIndicationStr, "i");
 
 // Match variations of the word "débarcadère"
 // contains 'DEBAR.' or 'DEBARCADERE', with or without accents
-const debarcadere = /d(e|é|É)bar(\.|(cad(e|è|È)re))/i;
+const debarcadereStr = "d(e|é|É)bar(\\.|(cad(e|è|È)re))";
+const debarcadere = new RegExp(debarcadereStr, "i");
+
+// Match variations of the word 'réservé'
+// Note 'réservée' with an additional 'e' is excluded
+const reservationKeywordStr = "r[eéÉ]ser(\\.|v[eéÉ](?!e))"
+const reservationKeyword = new RegExp(reservationKeywordStr, "i");
+// Match variations of the word 'excepté'
+const exceptionKeywordStr = "except[eéÉ]";
+const exceptionKeyword = new RegExp(exceptionKeywordStr, "i");
+
+// match time exception
+// ex: 'EXCEPTÉ MARDI'
+const exceptionTimeStr = `(${exceptionKeywordStr})(\\s+(${sameDatesTimeSpanStr}))*`;
+const exceptionTime = new RegExp(exceptionTimeStr, "i");
+
+// To determine whether the string contains a user class or not
+// Contains variation of 'réservé', or variation of word 'except' not followed by timespan
+const hasUserClassStr = `(${reservationKeywordStr})|(${exceptionKeywordStr})(?!\\s+((${sameDatesTimeSpanStr})|periode))`;
+const hasUserClass = new RegExp(hasUserClassStr, "i");
+
+// Match anything before a user class
+// This is intented to trim the part of the string that comes before the user class.
+// Every tentatives to match user classes directly failed
+// ex: '\\P RESERVE ', 'P RESERVE 21h-08h ', 'P 2H - 9H @ 16H EXCEPTÉ '
+const userClassLeftTrimmerStr = `.*((${reservationKeywordStr})|(${exceptionKeywordStr}))(\\s+(${sameDatesTimeSpanStr}))*(\\sseulement)?(\\s${debarcadereStr})?\\s*`;
+const userClassLeftTrimmer = new RegExp(userClassLeftTrimmerStr, "i");
+
+// Match anything after a user class
+// This is intented to trim the part of the string that comes after the user class.
+// This must be used after userClassLeftTrimmer
+// ex: ')', ' 09h30-21h', ' de 09h30 à 21h', ' 120min', ' 2h', ' EN TOUT TEMPS',
+const userClassRightTrimmerStr = `(\\)|\\s+([-\\(]|((de\\s+)?${sameDatesTimeSpanStr})|\\d+\\s*(min|h)|EN TOUT TEMPS)).*`;
+const userClassRightTrimmer = new RegExp(userClassRightTrimmerStr, "i");
 
 // Equivalent to regex.exec(value)?.[0], which is not available in node 12
 function getExecFirstMatch(regex, value) {
@@ -232,5 +266,11 @@ module.exports = {
     weekTime,
     sameDatesTimeSpan,
     debarcadere,
+    reservationKeyword,
+    exceptionKeyword,
     anyTimeIndication,
+    exceptionTime,
+    hasUserClass,
+    userClassLeftTrimmer,
+    userClassRightTrimmer,
 }

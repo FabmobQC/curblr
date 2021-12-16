@@ -96,15 +96,66 @@ describe("getMaxStay", () => {
     });
 });
 
+describe("getUserClass", () => {
+    test.each([
+        [
+            "\\P RESERVE HANDICAPES 09h30-21h",
+            {"classes": ["handicapes"]}
+        ],
+        [
+            "\\P EXCEPTE HANDICAPES 10h-20h 21 JUIN AU 1 SEPT.",
+            {"classes": ["handicapes"]}
+        ],
+        [
+            "\\P 04h-05h 16h30-23h30 EXCEPTE SERVICES ET CANTINES COMMUNAUTAIRES AUTORISÉS",
+            {"classes": [ 'services', 'cantines communautaires autorisés' ]}
+        ],
+        [
+            "P RESERVE 21h-08h VEHICULES MUNIS D'UN PERMIS S3R",
+            {"classes": ["vehicules munis d'un permis s3r"]}
+        ],
+        [
+            "P RESERVE AUTOBUS TOURISTIQUE - AIRE D'ATTENTE 60 min de 8h-18h ET 2H de 18h-24h",
+            {"classes": ['autobus touristique']}],
+        [
+            "P RESER. CLIENT + DETENT. PERMIS RUE ETROITE",
+            {"classes": [ 'client', 'detent. permis rue etroite' ]}
+        ],
+        [
+            "RÉSERVÉ AUTOBUS 15 JUIN au 1er SEPT.",
+            {"classes": ["autobus"]}
+        ],
+        [
+            "P RÉSERVÉ SEULEMENT DÉTENTEURS DE PERMIS #",
+            {"classes": ["détenteurs de permis #"]}
+        ],
+        [
+            "P 2H - 9H @ 16H EXCEPTÉ MARDI",
+            undefined
+        ],
+        [
+            "P 60 min 09h-17h LUN. AU SAM.",
+            undefined
+        ],
+        [
+            "PANONCEAU DE DIRECTION BLANC ET NOIR - A DROITE EN BAS",
+            undefined
+        ],
+    ])("getUserClasses('%s')", (description, expected) => {
+        const result = rpaToRegulations.getUserClasses(description);
+        expect(result).toStrictEqual(expected);
+    });
+});
+
 describe("getRule", () => {
     test.each([
-        ["\\P 10min", {"activity": "no parking", "maxStay": 10}],
-        ["test", "irrelevant"],
-        ["10min", {"activity": "parking", "maxStay": 10}],
-        ["PANONCEAU ", undefined],
-        ["PANONCEAU 10min", {"activity": undefined, "maxStay": 10}],
-    ])("getRule('%s')", (description, expected) => {
-        const result = rpaToRegulations.getRule(description);
+        ["no parking", 10, {"activity": "no parking", "maxStay": 10}],
+        ["no parking", undefined, {"activity": "no parking", "maxStay": undefined}],
+        [undefined, 10, {"activity": undefined, "maxStay": 10}],
+        ["panonceau", undefined, undefined],
+        ["panonceau", 10, {"activity": undefined, "maxStay": 10}],
+    ])("getRule(%p, %p)", (activity, maxStay, expected) => {
+        const result = rpaToRegulations.getRule(activity, maxStay);
         expect(result).toStrictEqual(expected);
     });
 
@@ -442,5 +493,13 @@ describe("getTimeSpans", () => {
     ])("getTimeSpans('%s')", (description, expected) => {
         const result = rpaToRegulations.getTimeSpans(description);
         expect(result).toStrictEqual(expected);
+    })
+});
+
+describe("getRegulations", () => {
+    test.each([
+
+    ])("getRegulations('%p')", (description, expected) => {
+
     })
 });

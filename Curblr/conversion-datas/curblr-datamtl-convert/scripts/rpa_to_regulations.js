@@ -8,7 +8,7 @@ const irrelevantExpressions = [
     "PASSAGE INTERDIT",
     "RUELLE FERMEE",
     "TOUR EN FIACRE",
-    
+    "VOIE",
 ];
 
 function containsIrrelevantExpression(description) {
@@ -49,17 +49,6 @@ function getActivity(description, timeSpans, maxStay) {
     }
 
     return 'irrelevant';
-}
-
-function getUserClasses(description) {
-    if (/handica(e|é|É)/i.test(description)) {
-        return {
-            "classes": ["handicap"],
-          }
-    }
-    else {
-        return undefined;
-    }
 }
 
 function getMaxStay(description) {
@@ -352,15 +341,10 @@ function getTimeSpans(description) {
     return (timeSpans.length != 0) ? timeSpans : undefined;
 }
 
-function getRule(description, timeSpans) {
-    const maxStay = getMaxStay(description);
-    const activity = getActivity(description, timeSpans, maxStay);
+function getRule(activity, maxStay, timeSpans, userClasses) {
+    const priorityCategory = getPrioritycategory(timeSpans, userClasses);
 
-    if (activity === "irrelevant") {
-        return activity;
-    }
-
-    const rule = { activity, maxStay };
+    const rule = { activity, maxStay, priorityCategory };
 
     if (rule.activity === "panonceau") {
         // keeping rule clean
@@ -370,24 +354,83 @@ function getRule(description, timeSpans) {
     return (rule.activity || rule.maxStay) ? rule : undefined;
 }
 
-function getRegulations(description) {
-    
-    const timeSpans = getTimeSpans(description);
-    const rule = getRule(description, timeSpans);
+function getUserClasses(description) {
+    if (!rpaReg.hasUserClass.test(description)) {
+        return undefined;
+    }
 
-    if (rule === "irrelevant") {
+    const userClasses = description
+    .replace(rpaReg.userClassLeftTrimmer, "")
+    .replace(rpaReg.userClassRightTrimmer, "")
+    .toLowerCase()
+    .split(/ (?:et|\+) /); // split on ' et ' or ' + '
+
+    if (userClasses[0] === "") {
+        return undefined;
+    }
+
+    return {
+        "classes": userClasses
+    }
+}
+
+function getPrioritycategory(timeSpans, userClasses) {
+    // we assume regulations with userClasses are very specific, thus have high priority
+    if (userClasses) {
+        return "2";
+    }
+
+    // we assume regulations with timeSpans are more specific than those without, thus have higher priority
+    if (timeSpans) {
+        return "3";
+    }
+
+    return "4";
+}
+
+function getRegulation(activity, maxStay, timeSpans, userClasses) {
+    return {
+        "rule": getRule(activity, maxStay, timeSpans, userClasses), 
+        "userClasses": userClasses,
+        "timeSpans": timeSpans,
+    };
+}
+
+// when there is more than one regulation
+function getComplexRegulations(activity, maxStay, timeSpans, userClasses) {
+    if (activity == "no parking" || activity == "no standing") {
+        // The user class is allowed to be there at that moment
+        const regulationUserClass = getRegulation("parking", maxStay, timeSpans, userClasses);
+        // Others are not allowed at that moment
+        const regulationOthers = getRegulation(activity, undefined, timeSpans, undefined);
+        return [regulationUserClass, regulationOthers];
+    }
+    else {
+        const regulationUserClass = getRegulation(activity, maxStay, timeSpans, userClasses);
+        // We assume other classes are never allowed to be there
+        const regulationOthers = getRegulation("no parking", undefined, undefined, undefined);
+        return [regulationUserClass, regulationOthers];
+    }
+}
+
+function getRegulations(description) {
+    const timeSpans = getTimeSpans(description);
+    const maxStay = getMaxStay(description);
+    const activity = getActivity(description, timeSpans, maxStay);
+    const userClasses = getUserClasses(description);
+
+    if (activity === "irrelevant") {
         // There's nothing useful to do
         return undefined;
     }
 
-    const regulation = {
-        // we assume regulations with timeSpans are more specific than those without, thus have higher priority
-        "priorityCategory": timeSpans ? "3" : "4",
-        "rule": rule, 
-        "timeSpans": timeSpans
-    };
-
-    return [regulation];
+    if (!userClasses) {
+        const regulation = getRegulation(activity, maxStay, timeSpans, userClasses);
+        return [regulation];
+    }
+    else {
+        return getComplexRegulations(activity, maxStay, timeSpans, userClasses);
+    }
 }
 
 function convert(rpaCodification) {
@@ -446,4 +489,5 @@ module.exports = {
     getDaysOfWeekFromEnumeration,
     getDaysOfWeekFromInterval,
     getTimeSpansFromDaysOverlapSyntax,
+    getUserClasses,
 };
