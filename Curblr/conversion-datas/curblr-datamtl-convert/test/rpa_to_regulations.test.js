@@ -243,6 +243,7 @@ describe("getTimesOfDay", () => {
         ["1h@2h", {"from": "01:00", "to": "02:00"}],
         ["1h @ 2h", {"from": "01:00", "to": "02:00"}],
         ["1h 2h", {"from": "01:00", "to": "02:00"}], // invalid syntax but ok
+        ["09-17h", {"from": "09:00", "to": "17:00"}],
         ["1h", undefined],
     ])("getTimeOfDay('%s')", (description, expected) => {
         const result = rpaToRegulations.getTimeOfDay(description);

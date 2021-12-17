@@ -234,7 +234,7 @@ function convertHtime(time) {
     return `${h.padStart(2,'0')}:${m}`
 }
 
-function getTimeOfDay(timeOfDayDescription) {
+function getTimeOfDayFromUsualSyntax(timeOfDayDescription) {
     rpaReg.time.lastIndex = 0;
     const startTime = rpaReg.getExecFirstMatch(rpaReg.time, timeOfDayDescription);
     const endTime = rpaReg.getExecFirstMatch(rpaReg.time, timeOfDayDescription);
@@ -245,6 +245,23 @@ function getTimeOfDay(timeOfDayDescription) {
         };
     }
     return undefined;
+}
+
+function getTimeOfDayFromSpecialSyntax(timeOfDayDescription) {
+    const matches = [...timeOfDayDescription.matchAll(/\d{2}/g)]; // match two digits
+    const startTime = matches[0][0];
+    const endTime = matches[1][0];
+    return {
+        from: `${startTime}:00`,
+        to: `${endTime}:00`
+    };
+}
+
+function getTimeOfDay(timeOfDayDescription) {
+    if (rpaReg.specialTimeInterval.test(timeOfDayDescription)) {
+        return getTimeOfDayFromSpecialSyntax(timeOfDayDescription);
+    }
+    return getTimeOfDayFromUsualSyntax(timeOfDayDescription);
 }
 
 function getTimesOfDay(description) {

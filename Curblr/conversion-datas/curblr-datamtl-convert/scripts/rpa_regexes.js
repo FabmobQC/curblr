@@ -3,8 +3,15 @@ const timeStr = "\\d{1,2}\\s*h\\d{0,2}";
 const time = new RegExp(timeStr, "ig");
 
 const timeIntervalConnecterStr = "\\s*[Aaà@-]\\s*";
-const specialTimeIntervalSTr = "\\b\\d{1,2}-\\d{1,2}h"; // ex: 09-17h
-const timeIntervalStr = `(?:${timeStr})${timeIntervalConnecterStr}(?:${timeStr})`;
+// Match the usual time interval syntax: both times are indicated with an "h" and are separated with a connector
+// ex: 9h-17h
+const usualTimeIntervalStr = `(?:${timeStr})${timeIntervalConnecterStr}(?:${timeStr})`;
+// Match special time intervals, for which the first time does not have an "h"
+// ex: 09-17h
+const specialTimeIntervalStr = "\\b\\d{2}-\\d{2}h";
+const specialTimeInterval = new RegExp(specialTimeIntervalStr, "i");
+// Match any time interval
+const timeIntervalStr = `(${usualTimeIntervalStr})|(${specialTimeIntervalStr})`
 const timeInterval = new RegExp(timeIntervalStr, "ig");
 
 // match a sequence of time intervals
@@ -239,6 +246,7 @@ function getExecFirstMatch(regex, value) {
 module.exports = {
     getExecFirstMatch,
     time,
+    specialTimeInterval,
     timeInterval,
     maxStay,
     timesSequence,
