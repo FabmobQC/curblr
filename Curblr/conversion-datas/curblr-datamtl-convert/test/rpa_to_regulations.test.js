@@ -147,15 +147,84 @@ describe("getUserClass", () => {
     });
 });
 
+
+
 describe("getRule", () => {
     test.each([
-        ["no parking", 10, {"activity": "no parking", "maxStay": 10}],
-        ["no parking", undefined, {"activity": "no parking", "maxStay": undefined}],
-        [undefined, 10, {"activity": undefined, "maxStay": 10}],
-        ["panonceau", undefined, undefined],
-        ["panonceau", 10, {"activity": undefined, "maxStay": 10}],
-    ])("getRule(%p, %p)", (activity, maxStay, expected) => {
-        const result = rpaToRegulations.getRule(activity, maxStay);
+        [
+            "no parking", 10, [], {},
+            {"activity": "no parking", "maxStay": 10, "priorityCategory": "2"}
+        ],
+        [
+            "no parking", 10, [], undefined,
+            {"activity": "no parking", "maxStay": 10, "priorityCategory": "3"}
+        ],
+        [
+            "no parking", 10, undefined, {},
+            {"activity": "no parking", "maxStay": 10, "priorityCategory": "2"}
+        ],
+        [
+            "no parking", 10, undefined, undefined,
+            {"activity": "no parking", "maxStay": 10, "priorityCategory": "3"}
+        ],
+        [
+            "no parking", undefined, [], {},
+            {"activity": "no parking", "maxStay": undefined, "priorityCategory": "2"}
+        ],
+        [
+            "no parking", undefined, [], undefined,
+            {"activity": "no parking", "maxStay": undefined, "priorityCategory": "3"}
+        ],
+        [
+            "no parking", undefined, undefined, {},
+            {"activity": "no parking", "maxStay": undefined, "priorityCategory": "2"}
+        ],
+        [
+            "no parking", undefined, undefined, undefined,
+            {"activity": "no parking", "maxStay": undefined, "priorityCategory": "4"}
+        ],
+        [
+            undefined, 10, [], {},
+            {"activity": undefined, "maxStay": 10, "priorityCategory": "2"}
+        ],
+        [
+            undefined, 10, [], undefined,
+            {"activity": undefined, "maxStay": 10, "priorityCategory": "3"}
+        ],
+        [
+            undefined, 10, undefined, {},
+            {"activity": undefined, "maxStay": 10, "priorityCategory": "2"}
+        ],
+        [
+            undefined, 10, undefined, undefined,
+            {"activity": undefined, "maxStay": 10, "priorityCategory": "3"}
+        ],
+        [
+            undefined, undefined, [], {},
+            undefined
+        ],
+        [
+            undefined, undefined, [], undefined,
+            undefined
+        ],
+        [
+            undefined, undefined, undefined, {},
+            undefined
+        ],
+        [
+            undefined, undefined, undefined, undefined,
+            undefined
+        ],
+        [
+            "panonceau", 10, [], {},
+            {"activity": undefined, "maxStay": 10, "priorityCategory": "2"}
+        ],
+        [
+            "panonceau", undefined, undefined, undefined,
+            undefined
+        ],
+    ])("getRule(%p, %p, %p, %p)", (activity, maxStay, timespans, userClasses, expected) => {
+        const result = rpaToRegulations.getRule(activity, maxStay, timespans, userClasses);
         expect(result).toStrictEqual(expected);
     });
 
@@ -496,10 +565,10 @@ describe("getTimeSpans", () => {
     })
 });
 
-describe("getRegulations", () => {
+/* describe("getRegulations", () => {
     test.each([
 
     ])("getRegulations('%p')", (description, expected) => {
 
     })
-});
+}); */

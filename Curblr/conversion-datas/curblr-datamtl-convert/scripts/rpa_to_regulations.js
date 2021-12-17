@@ -341,8 +341,22 @@ function getTimeSpans(description) {
     return (timeSpans.length != 0) ? timeSpans : undefined;
 }
 
+function getPrioritycategory(maxStay, timeSpans, userClasses) {
+    // we assume regulations with userClasses are very specific, thus have high priority
+    if (userClasses) {
+        return "2";
+    }
+
+    // we assume regulations with timeSpans or maxStay are more specific than those without, thus have higher priority
+    if (maxStay || timeSpans) {
+        return "3";
+    }
+
+    return "4";
+}
+
 function getRule(activity, maxStay, timeSpans, userClasses) {
-    const priorityCategory = getPrioritycategory(timeSpans, userClasses);
+    const priorityCategory = getPrioritycategory(maxStay, timeSpans, userClasses);
 
     const rule = { activity, maxStay, priorityCategory };
 
@@ -372,20 +386,6 @@ function getUserClasses(description) {
     return {
         "classes": userClasses
     }
-}
-
-function getPrioritycategory(timeSpans, userClasses) {
-    // we assume regulations with userClasses are very specific, thus have high priority
-    if (userClasses) {
-        return "2";
-    }
-
-    // we assume regulations with timeSpans are more specific than those without, thus have higher priority
-    if (timeSpans) {
-        return "3";
-    }
-
-    return "4";
 }
 
 function getRegulation(activity, maxStay, timeSpans, userClasses) {
