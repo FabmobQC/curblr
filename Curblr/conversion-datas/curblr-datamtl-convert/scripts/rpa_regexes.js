@@ -187,6 +187,10 @@ const maxStayHStr = `(:?${notBeforeMaxStayHStr}${maxStayHBasicStr}${notAfterMaxS
 const maxStayStr = `(${maxStayMinStr})|(${maxStayHStr})`;
 const maxStay = new RegExp(maxStayStr, "i");
 
+// Match a maxStay, but will also match things that look like a maxStay.
+// ex: '9h' and '10h' in '9h-10h', which aren't maxStay
+const basicMaxStayStr = "(\\d+\\s*(min|h))";
+
 const anyTimeIndicationStr = [
     timeStr,
     maxStayStr,
@@ -222,14 +226,16 @@ const hasUserClass = new RegExp(hasUserClassStr, "i");
 // This is intented to trim the part of the string that comes before the user class.
 // Every tentatives to match user classes directly failed
 // ex: '\\P RESERVE ', 'P RESERVE 21h-08h ', 'P 2H - 9H @ 16H EXCEPTÉ '
-const userClassLeftTrimmerStr = `.*((${reservationKeywordStr})|(${exceptionKeywordStr}))(\\s+(${sameDatesTimeSpanStr}))*(\\sseulement)?(\\s${debarcadereStr})?\\s*`;
+const userClassIndicatorStr = `((${reservationKeywordStr})|(${exceptionKeywordStr}))`;
+const userClassLeftTrimmerExcludedWordsStr = `(seulement|en tout temps|${debarcadereStr})`;
+const userClassLeftTrimmerStr = `.*${userClassIndicatorStr}(\\s+((${sameDatesTimeSpanStr})|${userClassLeftTrimmerExcludedWordsStr}|${basicMaxStayStr}))*\\s*`;
 const userClassLeftTrimmer = new RegExp(userClassLeftTrimmerStr, "i");
 
 // Match anything after a user class
 // This is intented to trim the part of the string that comes after the user class.
 // This must be used after userClassLeftTrimmer
-// ex: ')', ' 09h30-21h', ' de 09h30 à 21h', ' 120min', ' 2h', ' EN TOUT TEMPS',
-const userClassRightTrimmerStr = `(\\)|\\s+([-\\(]|((de\\s+)?${sameDatesTimeSpanStr})|\\d+\\s*(min|h)|EN TOUT TEMPS)).*`;
+// ex: ' ', ')', ' 09h30-21h', ' de 09h30 à 21h', ' 120min', ' 2h', ' EN TOUT TEMPS',
+const userClassRightTrimmerStr = `\\s+$|(\\)|\\s+([-\\(]|((de\\s+)?${sameDatesTimeSpanStr})|${basicMaxStayStr}|EN TOUT TEMPS)).*`;
 const userClassRightTrimmer = new RegExp(userClassRightTrimmerStr, "i");
 
 // Equivalent to regex.exec(value)?.[0], which is not available in node 12

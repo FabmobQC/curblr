@@ -652,6 +652,18 @@ describe("user class", () => {
             "PANONCEAU DE STATIONNEMENT (EXCEPTE VEH DE LA STM)",
             "VEH DE LA STM)",
         ],
+        [
+            "P RÉSERVÉ LUN AU VEN 18 @ 8H ET SAM-DIM DÉTENTEURS DE PERMIS #11",
+            "DÉTENTEURS DE PERMIS #11"
+        ],
+        [
+            "P RÉSERVÉ EN TOUT TEMPS DÉTENTEURS DE PERMIS #",
+            "DÉTENTEURS DE PERMIS #"
+        ],
+        [
+            "\\P EXCEPTE DEBARCADERE 15 MIN",
+            ""
+        ],
     ])("'%s'.replace(rpaReg.userClassLeftTrimmer, '')", (value, expected) => {
         const result = value.replace(rpaReg.userClassLeftTrimmer, "");
         expect(result).toBe(expected);
@@ -701,7 +713,11 @@ describe("user class", () => {
         [
             "",
             ""
-        ]
+        ],
+        [
+            "AUTOBUS SCOLAIRE ",
+            "AUTOBUS SCOLAIRE"
+        ],
     ])("'%s'.replace(rpaReg.userClassRightTrimmer, '')", (value, expected) => {
         const result = value.replace(rpaReg.userClassRightTrimmer, "");
         expect(result).toBe(expected);
