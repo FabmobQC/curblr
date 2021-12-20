@@ -8,7 +8,9 @@ const timeIntervalConnecterStr = "(\\s*[Aaà@-]\\s*)";
 const usualTimeIntervalStr = `(${timeStr}${timeIntervalConnecterStr}${timeStr})`;
 // Match special time intervals, for which the first time does not have an "h"
 // ex: 09-17h
-const specialTimeIntervalStr = "(\\b\\d{2}-\\d{2}h)";
+const special1TimeIntervalStr = "(\\b\\d{2}-\\d{2}h)";
+const special2TimeIntervalStr = "(\\b\\d{1,2} @ \\d{1,2}h)";
+const specialTimeIntervalStr = `(${special1TimeIntervalStr}|${special2TimeIntervalStr})`;
 const specialTimeInterval = new RegExp(specialTimeIntervalStr, "i");
 // Match any time interval
 const timeIntervalStr = `(${usualTimeIntervalStr}|${specialTimeIntervalStr})`

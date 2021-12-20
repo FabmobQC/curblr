@@ -248,12 +248,12 @@ function getTimeOfDayFromUsualSyntax(timeOfDayDescription) {
 }
 
 function getTimeOfDayFromSpecialSyntax(timeOfDayDescription) {
-    const matches = [...timeOfDayDescription.matchAll(/\d{2}/g)]; // match two digits
+    const matches = [...timeOfDayDescription.matchAll(/\d{1,2}/g)]; // match one or two digits
     const startTime = matches[0][0];
     const endTime = matches[1][0];
     return {
-        from: `${startTime}:00`,
-        to: `${endTime}:00`
+        from: `${startTime.padStart(2,'0')}:00`,
+        to: `${endTime.padStart(2,'0')}:00`
     };
 }
 
@@ -275,10 +275,10 @@ function getTimesOfDay(description) {
     return (timesOfDay.length != 0) ? timesOfDay : undefined;
 }
 
+
 // Get a list of timespans from the syntax where the time overlaps multiple days.
 // ex: LUN 17H À MAR 17H
 function getTimeSpansFromDaysOverlapSyntax(description, effectiveDates) {
-    const timeSpans = [];
     rpaReg.time.lastIndex = 0;
     const startTimeDescription = rpaReg.getExecFirstMatch(rpaReg.time, description);
     const startTime = convertHtime(startTimeDescription);
@@ -286,19 +286,20 @@ function getTimeSpansFromDaysOverlapSyntax(description, effectiveDates) {
     const endTime = convertHtime(endTimeDescription);
     const days = getDaysOfWeekFromInterval(description)["days"];
 
+    const timeSpans = [];
     // start timeSpan
     timeSpans.push({
         "effectiveDates": effectiveDates,
         "daysOfWeek": {"days": [days[0]]},
-        "timesOfDay": {"from": startTime, "to": "24:00"}
+        "timesOfDay": [{"from": startTime, "to": "24:00"}]
     });
 
-    // midde timeSpans
+    // middle timeSpans
     if (days.length > 2) {
         timeSpans.push({
             "effectiveDates": effectiveDates,
             "daysOfWeek": {"days": days.slice(1, days.length-1)},
-            "timesOfDay": {"from": "00:00", "to": "24:00"}
+            "timesOfDay": [{"from": "00:00", "to": "24:00"}]
         });
     }
 
@@ -306,22 +307,157 @@ function getTimeSpansFromDaysOverlapSyntax(description, effectiveDates) {
     timeSpans.push({
         "effectiveDates": effectiveDates,
         "daysOfWeek": {"days": [days[days.length-1]]},
-        "timesOfDay": {"from": "00:00", "to": endTime}
+        "timesOfDay": [{"from": "00:00", "to": endTime}]
     });
 
     return timeSpans
 }
 
-// Return a single timespan for all syntaxes except the one handled by getTimeSpansFromDaysOverlapSyntax
-// ex: "1H-2H", "LUN À VEN", "LUN ET VEN", "LUN 1H-2H", "1H-2H LUN"
-function getTimeSpan(description, effectiveDates) {
-    const timeSpan = {};
+function checkTimeOrderNeedsAdjustment(timesOfDay) {
+    let needAdjustment = false;
 
-    timeSpan["effectiveDates"] = effectiveDates;
-    timeSpan["daysOfWeek"] = getDaysOfWeek(description);
-    timeSpan["timesOfDay"] = getTimesOfDay(description);
+    timesOfDay.forEach((timeOfDay) => {
+        // Check if 'from' is earlier than 'to'
+        if (timeOfDay.from < timeOfDay.to) {
+            // It is not. No adjustment required.
+            return;
+        }
+
+        if (timeOfDay.to == "00:00") {
+            // Last time of day is represented by "24:00" in Curblr
+            // Lets fix this silently and forget about it
+            timeOfDay.to == "24:00";
+            return;
+        }
+
+        // 'from' is after 'to' and we could not fix it easily
+        needAdjustment = true;
+    });
+
+    return needAdjustment
+}
+
+// Adjust timeSpans for which the "from" time is earlier than the "to" time.
+// Case for which no specific day is indicated
+// Please don't hesitate to rename this
+function getTimeSpansWithAdjustedTimeOfDayOrderNoSpecificDay(provisionalTimeSpan) {
+    const provisionalTimesOfDay = provisionalTimeSpan.timesOfDay;
+    // Same rule for every day of the week
+    const timeSpan = {
+        "effectiveDates": provisionalTimeSpan.effectiveDates,
+        "daysOfWeek": undefined,
+        timesOfDay: [
+            {
+                "from": provisionalTimesOfDay[0].from,
+                "to": "24:00"
+            },
+            {
+                "from": "00:00",
+                "to": provisionalTimesOfDay[0].to
+            }
+        ]
+    };
+    return [timeSpan];
+}
+
+// Adjust timeSpans for which to "from" time is earlier than the "to" time.
+// Case for which specific days have been indicated
+// Please don't hesitate to rename this
+function getTimeSpansWithAdjustedTimeOfDayOrderForSpecificDays(provisionalTimeSpan) {
+    const timesOfDayForDay = { "mo": [], "tu": [], "we": [], "th": [], "fr": [], "sa": [], "su": [] };
+    const effectiveDates = provisionalTimeSpan.effectiveDates;
+    const provisionalDaysOfWeek = provisionalTimeSpan.daysOfWeek;
+    const firstTime = provisionalTimeSpan.timesOfDay[0].from;
+    const secondTime = provisionalTimeSpan.timesOfDay[0].to;
+
+    // The time interval overlap on the next day.
+    // ex: "LUNDI 23h-1H" is in fact "LUNDI 23H-24H, MARDI 0H-1H"
+    provisionalDaysOfWeek.days.forEach((currentDay) => {
+        const dayIndex = orderedDays.indexOf(currentDay);
+        const nextDay = orderedDays[dayIndex+1];
+        const currentDayTimesOfDay = timesOfDayForDay[currentDay];
+        const nextDayTimesOfDay = timesOfDayForDay[nextDay];
+        currentDayTimesOfDay.push({
+            "from": firstTime,
+            "to": "24:00"
+        });
+        nextDayTimesOfDay.push({
+            "from": "00:00",
+            "to": secondTime
+        });
+    })
+
+    // Group days with same timesOfDay to make result easier to analyse for humans, thus less error prone
+    const groupedDays = {}
+    Object.entries(timesOfDayForDay).forEach(([dayOfWeek, timesOfDay]) => {
+        if (timesOfDay.length == 0) {
+            // Discart days with no timesOfDay
+            return;
+        }
+        // Stringify timesOfDay for lazy deep compare
+        const stringifiedTimesOfDay = JSON.stringify(timesOfDay);
+        if (!(stringifiedTimesOfDay in groupedDays)) {
+            groupedDays[stringifiedTimesOfDay] = [];
+        }
+        groupedDays[stringifiedTimesOfDay].push(dayOfWeek);
+    });
+
+    // Create the new timeSpans
+    const timeSpans = [];
+    Object.values(groupedDays).forEach((group) => {
+        // Retrieving the timesOfDay for this group
+        // Since all days from group have the same timesOfDay, we can just take the first one
+        const anyDay = group[0];
+        const timesOfDay = timesOfDayForDay[anyDay];
+
+        timeSpans.push({effectiveDates, "daysOfWeek": {"days": group}, timesOfDay});
+    })
+
+    return timeSpans
+}
+
+// Verify timesOfDay has a "from" earlier than "to", and adjust the timeSpan if it is not the case.
+// Ex: "23H-1H" become "23H-24H ET 0H-1H"
+function adjustTimesOfDayOrder(provisionalTimeSpan, description) {
+    const provisionalTimesOfDay = provisionalTimeSpan.timesOfDay;
+    if (provisionalTimesOfDay === undefined || provisionalTimesOfDay.length == 0) {
+        // No times of day. Nothing to do.
+        return [provisionalTimeSpan];
+    }
+
+    if(!checkTimeOrderNeedsAdjustment(provisionalTimesOfDay)) {
+        // Don't need adjustement. Nothing to do.
+        return [provisionalTimeSpan];
+    }
+
+    if (provisionalTimesOfDay.length > 1) {
+        // The rule probably looks like "11h-12h, 23h-1h, mardi à vendredi"
+        // This is not handled for simplicity, and we hope no such rule will be added
+        console.warn(
+            "adjustTimesOfDayOrder: More than one timeOfDay, and one has 'from' earlier than 'to'. Please handle this case (sorry): ",
+            description
+        );
+        return [provisionalTimeSpan];
+    }
+
+    const provisionalDaysOfWeek = provisionalTimeSpan.daysOfWeek;
+    if (provisionalDaysOfWeek === undefined || provisionalDaysOfWeek.days.length == 0) {
+        return getTimeSpansWithAdjustedTimeOfDayOrderNoSpecificDay(provisionalTimeSpan);
+    }
+
+    return getTimeSpansWithAdjustedTimeOfDayOrderForSpecificDays(provisionalTimeSpan)
+}
+
+// Return timespans for all syntaxes except the one handled by getTimeSpansFromDaysOverlapSyntax
+// ex: "1H-2H", "LUN À VEN", "LUN ET VEN", "LUN 1H-2H", "1H-2H LUN"
+function getTimeSpansFromUsualSyntax(description, effectiveDates) {
+    const provisionalTimeSpan = {
+        effectiveDates,
+        "daysOfWeek": getDaysOfWeek(description),
+        "timesOfDay": getTimesOfDay(description)
+    }
     
-    return timeSpan;
+    return adjustTimesOfDayOrder(provisionalTimeSpan, description);
 }
 
 function getTimeSpans(description) {
@@ -343,8 +479,8 @@ function getTimeSpans(description) {
             }
             else {
                 // All the other syntaxes can be handled the same way
-                const timeSpan = getTimeSpan(timeSpanDescription, effectiveDates);
-                timeSpans.push(timeSpan);
+                const newTimeSpans = getTimeSpansFromUsualSyntax(timeSpanDescription, effectiveDates);
+                timeSpans.push(...newTimeSpans);
             }
             timeSpanAdded = true;
         }

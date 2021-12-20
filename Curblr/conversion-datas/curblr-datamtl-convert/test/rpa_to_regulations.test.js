@@ -244,6 +244,7 @@ describe("getTimesOfDay", () => {
         ["1h @ 2h", {"from": "01:00", "to": "02:00"}],
         ["1h 2h", {"from": "01:00", "to": "02:00"}], // invalid syntax but ok
         ["09-17h", {"from": "09:00", "to": "17:00"}],
+        ["18 @ 8h", {"from": "18:00", "to": "08:00"}],
         ["1h", undefined],
     ])("getTimeOfDay('%s')", (description, expected) => {
         const result = rpaToRegulations.getTimeOfDay(description);
@@ -473,16 +474,16 @@ describe("getDaysOfWeek", () => {
 
 describe("getTimeSpans", () => {
     test.each([
-        ["LUN 17H À MAR 17H", [{"effectiveDates": undefined, "daysOfWeek": {"days": ["mo"]}, "timesOfDay": {"from": "17:00", "to": "24:00"}},
-                               {"effectiveDates": undefined, "daysOfWeek": {"days": ["tu"]}, "timesOfDay": {"from": "00:00", "to": "17:00"}}]],
-        ["LUN 17H À VEN 17H", [{"effectiveDates": undefined, "daysOfWeek": {"days": ["mo"]}, "timesOfDay": {"from": "17:00", "to": "24:00"}},
-                               {"effectiveDates": undefined, "daysOfWeek": {"days": ["tu", "we", "th"]}, "timesOfDay": {"from": "00:00", "to": "24:00"}},
-                               {"effectiveDates": undefined, "daysOfWeek": {"days": ["fr"]}, "timesOfDay": {"from": "00:00", "to": "17:00"}}]],
-        ["17H LUN À 17H MAR", [{"effectiveDates": undefined, "daysOfWeek": {"days": ["mo"]}, "timesOfDay": {"from": "17:00", "to": "24:00"}},
-                               {"effectiveDates": undefined, "daysOfWeek": {"days": ["tu"]}, "timesOfDay": {"from": "00:00", "to": "17:00"}}]],
-        ["17H LUN À 17H VEN", [{"effectiveDates": undefined, "daysOfWeek": {"days": ["mo"]}, "timesOfDay": {"from": "17:00", "to": "24:00"}},
-                               {"effectiveDates": undefined, "daysOfWeek": {"days": ["tu", "we", "th"]}, "timesOfDay": {"from": "00:00", "to": "24:00"}},
-                               {"effectiveDates": undefined, "daysOfWeek": {"days": ["fr"]}, "timesOfDay": {"from": "00:00", "to": "17:00"}}]],
+        ["LUN 17H À MAR 17H", [{"effectiveDates": undefined, "daysOfWeek": {"days": ["mo"]}, "timesOfDay": [{"from": "17:00", "to": "24:00"}]},
+                               {"effectiveDates": undefined, "daysOfWeek": {"days": ["tu"]}, "timesOfDay": [{"from": "00:00", "to": "17:00"}]}]],
+        ["LUN 17H À VEN 17H", [{"effectiveDates": undefined, "daysOfWeek": {"days": ["mo"]}, "timesOfDay": [{"from": "17:00", "to": "24:00"}]},
+                               {"effectiveDates": undefined, "daysOfWeek": {"days": ["tu", "we", "th"]}, "timesOfDay": [{"from": "00:00", "to": "24:00"}]},
+                               {"effectiveDates": undefined, "daysOfWeek": {"days": ["fr"]}, "timesOfDay": [{"from": "00:00", "to": "17:00"}]}]],
+        ["17H LUN À 17H MAR", [{"effectiveDates": undefined, "daysOfWeek": {"days": ["mo"]}, "timesOfDay": [{"from": "17:00", "to": "24:00"}]},
+                               {"effectiveDates": undefined, "daysOfWeek": {"days": ["tu"]}, "timesOfDay": [{"from": "00:00", "to": "17:00"}]}]],
+        ["17H LUN À 17H VEN", [{"effectiveDates": undefined, "daysOfWeek": {"days": ["mo"]}, "timesOfDay": [{"from": "17:00", "to": "24:00"}]},
+                               {"effectiveDates": undefined, "daysOfWeek": {"days": ["tu", "we", "th"]}, "timesOfDay": [{"from": "00:00", "to": "24:00"}]},
+                               {"effectiveDates": undefined, "daysOfWeek": {"days": ["fr"]}, "timesOfDay": [{"from": "00:00", "to": "17:00"}]}]],
     ])("getTimeSpansFromDaysOverlapSyntax('%s')", (description, expected) => {
         const result = rpaToRegulations.getTimeSpansFromDaysOverlapSyntax(description);
         expect(result).toStrictEqual(expected);
@@ -539,12 +540,12 @@ describe("getTimeSpans", () => {
             [{
                 "effectiveDates": [{"from": "03-01", "to": "12-01"}],
                 "daysOfWeek": {"days": ["mo"]},
-                "timesOfDay": {"from": "17:00", "to": "24:00"}
+                "timesOfDay": [{"from": "17:00", "to": "24:00"}]
             },
             {
                 "effectiveDates": [{"from": "03-01", "to": "12-01"}],
                 "daysOfWeek": {"days": ["tu"]},
-                "timesOfDay": {"from": "00:00", "to": "17:00"}
+                "timesOfDay": [{"from": "00:00", "to": "17:00"}]
             }]
         ],
         [
@@ -552,14 +553,36 @@ describe("getTimeSpans", () => {
             [{
                 "effectiveDates": [{"from": "03-01", "to": "12-01"}],
                 "daysOfWeek": {"days": ["mo"]},
-                "timesOfDay": {"from": "17:00", "to": "24:00"}
+                "timesOfDay": [{"from": "17:00", "to": "24:00"}]
             },
             {
                 "effectiveDates": [{"from": "03-01", "to": "12-01"}],
                 "daysOfWeek": {"days": ["tu"]},
-                "timesOfDay": {"from": "00:00", "to": "17:00"}
+                "timesOfDay": [{"from": "00:00", "to": "17:00"}]
             }]
         ],
+        [
+            "9H - 3H",
+            [{
+                "effectiveDates": undefined,
+                "daysOfWeek": undefined,
+                "timesOfDay": [{"from": "09:00","to": "24:00"}, {"from": "00:00", "to": "03:00"}]
+            }]
+        ],
+
+        [
+            "9H - 3H LUN ET MER ",
+            [{
+                "effectiveDates": undefined,
+                "daysOfWeek": {"days": ["mo", "we"]},
+                "timesOfDay": [{"from": "09:00","to": "24:00"}]
+            },
+            {
+                "effectiveDates": undefined,
+                "daysOfWeek": {"days": ["tu", "th"]},
+                "timesOfDay": [{"from": "00:00", "to": "03:00"}]
+            }]
+        ]
     ])("getTimeSpans('%s')", (description, expected) => {
         const result = rpaToRegulations.getTimeSpans(description);
         expect(result).toStrictEqual(expected);

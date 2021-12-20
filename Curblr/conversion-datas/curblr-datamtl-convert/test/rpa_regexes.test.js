@@ -21,7 +21,10 @@ describe("times", () => {
 
     test.each([
         ["test 09-17h test", "09-17h"],
-        ["1h-2h", undefined],
+        ["test 09h00-17h test", undefined],
+        ["test 09h-17h test", undefined],
+        ["test 18 @ 8H test", "18 @ 8H"],
+        ["test 18h @ 8H test", undefined],
     ])("specialTimeInterval.exec(%p)", (value, expected) => {
         const result = rpaReg.getExecFirstMatch(rpaReg.specialTimeInterval, value);
         expect(result).toBe(expected);
