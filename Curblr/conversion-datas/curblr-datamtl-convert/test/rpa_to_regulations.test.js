@@ -507,7 +507,12 @@ describe("getTimeSpans", () => {
             }]
         ],
         [
-            "15 NOV AU 15 MARS", [{"effectiveDates": [{"from": "11-15", "to": "03-15"}]}]
+            "15 NOV AU 15 MARS",
+            [{
+                    "effectiveDates": [{"from": "11-15", "to": "03-15"}],
+                    "daysOfWeek": undefined,
+                    "timesOfDay": undefined
+            }]
         ],
         [
             "18h-23h LUN.AU VEN., 9h-23h SAM.ET DIM.",
@@ -525,14 +530,14 @@ describe("getTimeSpans", () => {
         [
             "9H À 17H LUN MER VEN 15 NOV AU 15 MARS, 11H À 12H MERCREDI 15 MARS AU 15 NOV",
             [{
+                "effectiveDates": [{ "from": "03-15", "to": "11-15"}],
+                "daysOfWeek": {"days": ["we"]},
+                "timesOfDay": [{"from": "11:00", "to": "12:00"}]
+            },
+            {
               "effectiveDates": [{ "from": "11-15", "to": "03-15"}],
               "daysOfWeek": {"days": ["mo", "we", "fr"]},
               "timesOfDay": [{ "from": "09:00", "to": "17:00"}]
-            },
-            {
-              "effectiveDates": [{ "from": "03-15", "to": "11-15"}],
-              "daysOfWeek": {"days": ["we"]},
-              "timesOfDay": [{"from": "11:00", "to": "12:00"}]
             }]
         ],
         [
@@ -566,7 +571,7 @@ describe("getTimeSpans", () => {
             [{
                 "effectiveDates": undefined,
                 "daysOfWeek": undefined,
-                "timesOfDay": [{"from": "09:00","to": "24:00"}, {"from": "00:00", "to": "03:00"}]
+                "timesOfDay": [{"from": "00:00", "to": "03:00"}, {"from": "09:00","to": "24:00"}]
             }]
         ],
 
@@ -574,12 +579,22 @@ describe("getTimeSpans", () => {
             "9H - 3H LUN ET MER ",
             [{
                 "effectiveDates": undefined,
-                "daysOfWeek": {"days": ["mo", "we"]},
+                "daysOfWeek": {"days": ["mo"]},
                 "timesOfDay": [{"from": "09:00","to": "24:00"}]
             },
             {
                 "effectiveDates": undefined,
-                "daysOfWeek": {"days": ["tu", "th"]},
+                "daysOfWeek": {"days": ["tu"]},
+                "timesOfDay": [{"from": "00:00", "to": "03:00"}]
+            },
+            {
+                "effectiveDates": undefined,
+                "daysOfWeek": {"days": ["we"]},
+                "timesOfDay": [{"from": "09:00","to": "24:00"}]
+            },
+            {
+                "effectiveDates": undefined,
+                "daysOfWeek": {"days": ["th"]},
                 "timesOfDay": [{"from": "00:00", "to": "03:00"}]
             }]
         ]

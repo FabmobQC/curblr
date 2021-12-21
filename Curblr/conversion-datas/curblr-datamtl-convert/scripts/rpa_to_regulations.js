@@ -1,5 +1,6 @@
 const jsonHelper = require("./json_helper")
 const rpaReg = require("./rpa_regexes")
+const curblrPrettifier = require("./curblr_prettifier");
 
 const irrelevantExpressions = [
     "COLLECTE DES ORDURES",
@@ -360,7 +361,7 @@ function getTimeSpansWithAdjustedTimeOfDayOrderNoSpecificDay(provisionalTimeSpan
     return [timeSpan];
 }
 
-// Adjust timeSpans for which to "from" time is earlier than the "to" time.
+// Adjust timeSpans for which the "from" time is earlier than the "to" time.
 // Case for which specific days have been indicated
 // Please don't hesitate to rename this
 function getTimeSpansWithAdjustedTimeOfDayOrderForSpecificDays(provisionalTimeSpan) {
@@ -387,33 +388,15 @@ function getTimeSpansWithAdjustedTimeOfDayOrderForSpecificDays(provisionalTimeSp
         });
     })
 
-    // Group days with same timesOfDay to make result easier to analyse for humans, thus less error prone
-    const groupedDays = {}
+    const timeSpans = [];
     Object.entries(timesOfDayForDay).forEach(([dayOfWeek, timesOfDay]) => {
         if (timesOfDay.length == 0) {
-            // Discart days with no timesOfDay
+            // Discard days with no timesOfDay
             return;
         }
-        // Stringify timesOfDay for lazy deep compare
-        const stringifiedTimesOfDay = JSON.stringify(timesOfDay);
-        if (!(stringifiedTimesOfDay in groupedDays)) {
-            groupedDays[stringifiedTimesOfDay] = [];
-        }
-        groupedDays[stringifiedTimesOfDay].push(dayOfWeek);
+        timeSpans.push({effectiveDates, "daysOfWeek": {"days": [dayOfWeek]}, timesOfDay});
     });
-
-    // Create the new timeSpans
-    const timeSpans = [];
-    Object.values(groupedDays).forEach((group) => {
-        // Retrieving the timesOfDay for this group
-        // Since all days from group have the same timesOfDay, we can just take the first one
-        const anyDay = group[0];
-        const timesOfDay = timesOfDayForDay[anyDay];
-
-        timeSpans.push({effectiveDates, "daysOfWeek": {"days": group}, timesOfDay});
-    })
-
-    return timeSpans
+    return timeSpans;
 }
 
 // Verify timesOfDay has a "from" earlier than "to", and adjust the timeSpan if it is not the case.
@@ -490,8 +473,9 @@ function getTimeSpans(description) {
             timeSpans.push({"effectiveDates": effectiveDates});
         }
     }
+    const cleanedTimeSpans = curblrPrettifier.cleanTimeSpans(timeSpans);
     
-    return (timeSpans.length != 0) ? timeSpans : undefined;
+    return (cleanedTimeSpans.length != 0) ? cleanedTimeSpans : undefined;
 }
 
 function getPrioritycategory(maxStay, timeSpans, userClasses) {
