@@ -56,7 +56,29 @@ function groupByDayOfWeek(messyTimeSpans) {
     return timeSpans;
 }
 
-// Group daysOfWeek by effectiveDates and timesOfDay
+function sortTimeSpansByDaysOfWeek(timeSpans) {
+    if (timeSpans === undefined) {
+        return undefined;
+    }
+    return timeSpans.sort((a, b) => {
+        // There is supposed to be only one day by timeSpan
+        // If called by groupByTimesOfDay with timeSpans grouped by groupByDayOfWeek, as intented
+        const dayA = a.daysOfWeek.days[0];
+        const dayB = b.daysOfWeek.days[0];
+        const indexDayA = orderedDaysOfWeek.indexOf(dayA);
+        const indexDayB = orderedDaysOfWeek.indexOf(dayB);
+        if (indexDayA > indexDayB ) {
+            return 1;
+        }
+        if (indexDayA < indexDayB ) {
+            return -1;
+        }
+        return 0;
+    });
+}
+
+// Group consecutive daysOfWeek by effectiveDates and timesOfDay
+// Should be called by timeSpans grouped by groupByDayOfWeek
 // Goal is to have identical timesOfDay under the same daysOfWeek
 // This: [{"daysOfWeek": {"days": ["mo"]},"timesOfDay": [{"from": "00:00", "to": "03:00"}]}, {"daysOfWeek": {"days": ["tu"]}, "timesOfDay": [{"from": "00:00", "to": "03:00"}]}]
 // Becomes this: [{"daysOfWeek": {"days": ["mo", "tu"]},"timesOfDay": [{"from": "00:00", "to": "03:00"}]}]
@@ -66,39 +88,34 @@ function groupByTimesOfDay(messyTimeSpans) {
     }
     const effectiveDatesMap = {};
 
+    // group by effectiveDates
     messyTimeSpans.forEach((timeSpan) => {
-        // group by effectiveDates
         const stringifiedEffectiveDates = JSON.stringify(timeSpan.effectiveDates);
         if (!(stringifiedEffectiveDates in effectiveDatesMap)) {
-            effectiveDatesMap[stringifiedEffectiveDates] = {};
+            effectiveDatesMap[stringifiedEffectiveDates] = [];
         }
-
-        const timesOfDayMap = effectiveDatesMap[stringifiedEffectiveDates];
-        const stringifiedTimesOfDay = JSON.stringify(timeSpan.timesOfDay);
-        
-        const days = (() => {
-            if(timeSpan.daysOfWeek === undefined) {
-                return orderedDaysOfWeek;
-            }
-            return timeSpan.daysOfWeek.days;
-        })();
-
-        if (!(stringifiedTimesOfDay in timesOfDayMap)) {
-            timesOfDayMap[stringifiedTimesOfDay] = [];
-        }
-        const daysGrouped = timesOfDayMap[stringifiedTimesOfDay];
-        daysGrouped.push(...days);
+        const timeSpansArray = effectiveDatesMap[stringifiedEffectiveDates];
+        timeSpansArray.push(timeSpan);
     });
 
-    // Build back clean effective dates
     const timeSpans = [];
-    Object.entries(effectiveDatesMap).forEach(([stringifiedEffectiveDates, timesOfDayMap]) => {
-        const effectiveDates = (stringifiedEffectiveDates !== "undefined") ? JSON.parse(stringifiedEffectiveDates) : undefined;
-        Object.entries(timesOfDayMap).forEach(([stringifiedTimesOfDay, days]) => {
-            const timesOfDay = JSON.parse(stringifiedTimesOfDay);
-            timeSpans.push({effectiveDates, "daysOfWeek": {"days": days}, timesOfDay});
+    Object.values(effectiveDatesMap).forEach((timeSpansForDates) => {
+        const sortedTimeSpansForDates = sortTimeSpansByDaysOfWeek(timeSpansForDates);
+        let previousTimeSpan = {};
+        let previousStringifiedTimesOfDay = ""; // should not match any timesOfDay
+        sortedTimeSpansForDates.forEach((timeSpan) => {
+            const stringifiedTimesOfDay = JSON.stringify(timeSpan.timesOfDay);
+            if (previousStringifiedTimesOfDay == stringifiedTimesOfDay) {
+                previousTimeSpan.daysOfWeek.days.push(timeSpan.daysOfWeek.days[0]);
+            }
+            else {
+                timeSpans.push(timeSpan);
+                previousTimeSpan = timeSpan;
+            }
+            previousStringifiedTimesOfDay = stringifiedTimesOfDay;
         });
     });
+
     return timeSpans;
 }
 
@@ -121,7 +138,7 @@ function sortEffectiveDates(effectiveDates) {
     return effectiveDates.sort(stringifyComparator);
 }
 
-function sortDaysOfWeek(daysOfWeek) {
+function cleanDaysOfWeek(daysOfWeek) {
     if (daysOfWeek === undefined) {
         return undefined;
     }
@@ -130,19 +147,8 @@ function sortDaysOfWeek(daysOfWeek) {
         // Everyday of week. No need to specify days;
         return undefined;
     }
-    const sortedDays = daysNoDuplicates.sort((a, b) => {
-        const indexA = orderedDaysOfWeek.indexOf(a);
-        const indexB = orderedDaysOfWeek.indexOf(b);
-        if (indexA > indexB ) {
-            return 1;
-        }
-        if (indexA < indexB ) {
-            return -1;
-        }
-        return 0;
-    })
 
-    return {"days": sortedDays};
+    return {"days": daysNoDuplicates};
 }
 
 function sortTimesOfDay(timesOfDay) {
@@ -200,18 +206,15 @@ function sortTimeSpans(timeSpans) {
             }
             // For now, both daysOfWeek have been identical
             // Lets order by their length
+            // This case should not happen if data has passed by groupByDayOfWeek and groupByDayOfWeek prior
             if (daysA.length > daysB.length) {
-                console.log("ici1")
                 return 1;
             }
             if (daysA.length < daysB.length) {
-                console.log("ici2")
                 return -1;
             }
-            console.log("ici3")
             return 0;
         }
-        console.log("ici4")
         // daysOfWeek are both undefined
         const stringifiedTimesOfDayA = JSON.stringify(a.timesOfDay);
         const stringifiedTimesOfDayB = JSON.stringify(b.timesOfDay);
@@ -227,6 +230,8 @@ function sortTimeSpans(timeSpans) {
     });
 }
 
+// Order timeSpans by effectiveDates, then by daysOfWeek.
+// Group all timesOfDay for same day, then all consecutive days with same timesOfDay.
 function cleanTimeSpans(messyTimeSpans) {
     if (messyTimeSpans === undefined) {
         return undefined;
@@ -237,7 +242,7 @@ function cleanTimeSpans(messyTimeSpans) {
     groupedTimeSpans.forEach((timeSpan) => {
         internalyOrderedTimeSpans.push({
             "effectiveDates": sortEffectiveDates(timeSpan.effectiveDates),
-            "daysOfWeek": sortDaysOfWeek(timeSpan.daysOfWeek),
+            "daysOfWeek": cleanDaysOfWeek(timeSpan.daysOfWeek), // groupByTimesOfDay already sorted them
             "timesOfDay": sortTimesOfDay(timeSpan.timesOfDay)
         })
     })
@@ -247,9 +252,10 @@ function cleanTimeSpans(messyTimeSpans) {
 
 module.exports = {
     groupByDayOfWeek,
+    sortTimeSpansByDaysOfWeek,
     groupByTimesOfDay,
     sortEffectiveDates,
-    sortDaysOfWeek,
+    cleanDaysOfWeek,
     sortTimesOfDay,
     sortTimeSpans,
     cleanTimeSpans,

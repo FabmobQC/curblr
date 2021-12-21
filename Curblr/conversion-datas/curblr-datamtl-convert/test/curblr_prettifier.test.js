@@ -120,6 +120,38 @@ describe("groupByDayOfWeek", () => {
     });
 });
 
+describe("sortTimeSpansByDaysOfWeek", () => {
+    test.each([
+        [
+            undefined, // input
+            undefined, // result
+        ],
+        [
+            [
+                {"daysOfWeek": {"days": ["sa"]}},
+                {"daysOfWeek": {"days": ["mo"]}},
+                {"daysOfWeek": {"days": ["we"]}},
+                {"daysOfWeek": {"days": ["su"]}},
+                {"daysOfWeek": {"days": ["tu"]}},
+                {"daysOfWeek": {"days": ["th"]}},
+                {"daysOfWeek": {"days": ["fr"]}},
+            ],
+            [
+                {"daysOfWeek": {"days": ["mo"]}},
+                {"daysOfWeek": {"days": ["tu"]}},
+                {"daysOfWeek": {"days": ["we"]}},
+                {"daysOfWeek": {"days": ["th"]}},
+                {"daysOfWeek": {"days": ["fr"]}},
+                {"daysOfWeek": {"days": ["sa"]}},
+                {"daysOfWeek": {"days": ["su"]}},
+            ],
+        ]
+    ])("sortTimeSpansByDaysOfWeek(%p)", (value, expected) => {
+        const result = curblrPrettifier.sortTimeSpansByDaysOfWeek(value);
+        expect(result).toStrictEqual(expected);
+    });
+});
+
 describe("groupByTimeOfDay", () => {
     test.each([
         [
@@ -131,19 +163,55 @@ describe("groupByTimeOfDay", () => {
                 {
                     "effectiveDates": undefined,
                     "daysOfWeek": {"days": ["mo"]},
-                    "timesOfDay": [{"from": "00:00", "to": "03:00"}]
+                    "timesOfDay": [{"from": "00:00", "to": "01:00"}]
                 },
                 {
                     "effectiveDates": undefined,
-                    "daysOfWeek": {"days": ["tu"]},
-                    "timesOfDay": [{"from": "00:00", "to": "03:00"}]
+                    "daysOfWeek": {"days": ["we"]},
+                    "timesOfDay": [{"from": "00:00", "to": "01:00"}]
                 }
             ],
             [ // result
                 {
                     "effectiveDates": undefined,
-                    "daysOfWeek": {"days": ["mo", "tu"]},
-                    "timesOfDay": [{"from": "00:00", "to": "03:00"}]
+                    "daysOfWeek": {"days": ["mo", "we"]},
+                    "timesOfDay": [{"from": "00:00", "to": "01:00"}]
+                }
+            ]
+        ],
+        [ // "mo" and "we" should not be merged since there is "tu" in the middle
+            [ // input
+                {
+                    "effectiveDates": undefined,
+                    "daysOfWeek": {"days": ["mo"]},
+                    "timesOfDay": [{"from": "00:00", "to": "01:00"}]
+                },
+                {
+                    "effectiveDates": undefined,
+                    "daysOfWeek": {"days": ["we"]},
+                    "timesOfDay": [{"from": "00:00", "to": "01:00"}]
+                },
+                {
+                    "effectiveDates": undefined,
+                    "daysOfWeek": {"days": ["tu"]},
+                    "timesOfDay": [{"from": "02:00", "to": "03:00"}]
+                }
+            ],
+            [ // result
+                {
+                    "effectiveDates": undefined,
+                    "daysOfWeek": {"days": ["mo"]},
+                    "timesOfDay": [{"from": "00:00", "to": "01:00"}]
+                },
+                {
+                    "effectiveDates": undefined,
+                    "daysOfWeek": {"days": ["tu"]},
+                    "timesOfDay": [{"from": "02:00", "to": "03:00"}]
+                },
+                {
+                    "effectiveDates": undefined,
+                    "daysOfWeek": {"days": ["we"]},
+                    "timesOfDay": [{"from": "00:00", "to": "01:00"}]
                 }
             ]
         ],
@@ -173,30 +241,26 @@ describe("sortEffectiveDates", () => {
     });
 });
 
-describe("sortDaysOfWeek", () => {
+describe("cleanDaysOfWeek", () => {
     test.each([
         [
             undefined, // input
             undefined, // result
         ],
-        [
-            {"days": ["tu", "mo"]}, // input
-            {"days": ["mo", "tu"]}, // result
-        ],
-        [
+        [ // nothing to do
             {"days": ["mo", "tu"]}, // input
             {"days": ["mo", "tu"]}, // result
         ],
-        [
+        [ // duplicates
             {"days": ["mo", "mo", "tu"]}, // input
             {"days": ["mo", "tu"]}, // result
         ],
-        [
+        [ // full week
             {"days": ["mo", "tu", "we", "th", "fr", "sa", "su"]}, // input
             undefined // result
         ],
-    ])("sortDaysOfWeek(%p)", (value, expected) => {
-        const result = curblrPrettifier.sortDaysOfWeek(value);
+    ])("cleanDaysOfWeek(%p)", (value, expected) => {
+        const result = curblrPrettifier.cleanDaysOfWeek(value);
         expect(result).toStrictEqual(expected);
     });
 });
@@ -473,7 +537,7 @@ describe("cleanTimeSpans", () => {
                 },
                 {
                     "effectiveDates": [{"from": "01-01","to": "02-01"}],
-                    "daysOfWeek": {"days": ["tu", "sa", "su"]}, // would be nice to have "sa" and "su" at the end
+                    "daysOfWeek": {"days": ["tu"]},
                     "timesOfDay": [{"from": "04:00","to": "05:00"}]
                 },
                 {
@@ -485,7 +549,12 @@ describe("cleanTimeSpans", () => {
                     "effectiveDates": [{"from": "01-01","to": "02-01"}],
                     "daysOfWeek": {"days": ["fr"]},
                     "timesOfDay": [{"from": "02:00","to": "03:00"}, {"from": "04:00","to": "05:00"}]
-                }
+                },
+                {
+                    "effectiveDates": [{"from": "01-01","to": "02-01"}],
+                    "daysOfWeek": {"days": ["sa", "su"]},
+                    "timesOfDay": [{"from": "04:00","to": "05:00"}]
+                },
             ]
         ]
     ])("cleanTimeSpans(%p)", (list, expected) => {
