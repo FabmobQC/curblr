@@ -28,12 +28,23 @@ function groupByDayOfWeek(messyTimeSpans) {
             return timeSpan.daysOfWeek.days;
         })();
         days.forEach((day) => {
+            if ((day in dayOfWeekMap) && dayOfWeekMap[day].length == 0) {
+                // The array of timesOfDay has already been created for that day, but it is empty
+                // It means an undefined timesOfDay has been added (see bellow)
+                return;
+            }
+
             if (!(day in dayOfWeekMap)) {
                 dayOfWeekMap[day] = [];
             }
-            const timesOfDayGrouped = dayOfWeekMap[day];
+
             if (timeSpan.timesOfDay) {
-                timesOfDayGrouped.push(...timeSpan.timesOfDay);
+                dayOfWeekMap[day].push(...timeSpan.timesOfDay);
+            }
+            else {
+                // timesOfDay is undefined. It overlaps the whole day.
+                // Lets clear the array to end up with a "clean" undefined instead of {"from": "00:00", "to": "24:00"}
+                dayOfWeekMap[day].length = 0;
             }
         });
     });
@@ -52,7 +63,6 @@ function groupByDayOfWeek(messyTimeSpans) {
             });
         });
     });
-
     return timeSpans;
 }
 

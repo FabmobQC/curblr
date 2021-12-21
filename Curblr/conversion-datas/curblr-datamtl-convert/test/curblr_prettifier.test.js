@@ -112,7 +112,43 @@ describe("groupByDayOfWeek", () => {
                     "daysOfWeek": {"days": ["su"]},
                     "timesOfDay": [{"from": "00:00", "to": "01:00"}]
                 },
-            ]
+            ],
+        ],
+        [ // One undefined timesOfDay makes it undefined for the whole day. (undefined first)
+            [ // input
+                {
+                    "daysOfWeek": {"days": ["mo"]},
+                },
+                {
+                    "daysOfWeek": {"days": ["mo"]},
+                    "timesOfDay": [{"from": "00:00", "to": "03:00"}]
+                }
+            ],
+            [ // result
+                {
+                    "effectiveDates": undefined,
+                    "daysOfWeek": {"days": ["mo"]},
+                    "timesOfDay": undefined,
+                }
+            ],
+        ],
+        [ // One undefined timesOfDay makes it undefined for the whole day. (undefined second)
+            [ // input
+                {
+                    "daysOfWeek": {"days": ["mo"]},
+                    "timesOfDay": [{"from": "00:00", "to": "03:00"}]
+                },
+                {
+                    "daysOfWeek": {"days": ["mo"]},
+                },
+            ],
+            [ // result
+                {
+                    "effectiveDates": undefined,
+                    "daysOfWeek": {"days": ["mo"]},
+                    "timesOfDay": undefined,
+                }
+            ],
         ],
     ])("groupByDayOfWeek(%p)", (input, expected) => {
         const result = curblrPrettifier.groupByDayOfWeek(input);
