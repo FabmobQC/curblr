@@ -161,7 +161,7 @@ const daysOfMonthInterval = new RegExp(daysOfMonthIntervalStr, "i");
 // Match timespans that occur on the same date
 // weekTime alone, or daysOfMonthInterval alone, or weekTime with daysOfMonthInterval
 // For example, "1h-2h 1er jan à 2 fev. 3h30 @ 4h mars 3 au avril 4" will match on "1h-2h 1er jan à 2 fev." and "3h30 @ 4h mars 3 au avril 4"
-const sameDatesTimeSpanStr = `(((${weekTimeStr}\\s*([-,]?)?\\s*)+${daysOfMonthIntervalStr}?)|((${weekTimeStr}\\s*([-,]?)?\\s*)?${daysOfMonthIntervalStr}))`;
+const sameDatesTimeSpanStr = `(((${weekTimeStr}\\s*([-,]|et)?\\s*)+${daysOfMonthIntervalStr}?)|((${weekTimeStr}\\s*([-,]|et)?\\s*)?${daysOfMonthIntervalStr}))`;
 const sameDatesTimeSpan = new RegExp(sameDatesTimeSpanStr, "ig");
 
 // maxStay with "min" is easy: "min" is always going to match with a maxStay.
