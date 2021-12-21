@@ -477,12 +477,12 @@ describe("getTimeSpans", () => {
         ["LUN 17H À MAR 17H", [{"effectiveDates": undefined, "daysOfWeek": {"days": ["mo"]}, "timesOfDay": [{"from": "17:00", "to": "24:00"}]},
                                {"effectiveDates": undefined, "daysOfWeek": {"days": ["tu"]}, "timesOfDay": [{"from": "00:00", "to": "17:00"}]}]],
         ["LUN 17H À VEN 17H", [{"effectiveDates": undefined, "daysOfWeek": {"days": ["mo"]}, "timesOfDay": [{"from": "17:00", "to": "24:00"}]},
-                               {"effectiveDates": undefined, "daysOfWeek": {"days": ["tu", "we", "th"]}, "timesOfDay": [{"from": "00:00", "to": "24:00"}]},
+                               {"effectiveDates": undefined, "daysOfWeek": {"days": ["tu", "we", "th"]}, "timesOfDay": undefined},
                                {"effectiveDates": undefined, "daysOfWeek": {"days": ["fr"]}, "timesOfDay": [{"from": "00:00", "to": "17:00"}]}]],
         ["17H LUN À 17H MAR", [{"effectiveDates": undefined, "daysOfWeek": {"days": ["mo"]}, "timesOfDay": [{"from": "17:00", "to": "24:00"}]},
                                {"effectiveDates": undefined, "daysOfWeek": {"days": ["tu"]}, "timesOfDay": [{"from": "00:00", "to": "17:00"}]}]],
         ["17H LUN À 17H VEN", [{"effectiveDates": undefined, "daysOfWeek": {"days": ["mo"]}, "timesOfDay": [{"from": "17:00", "to": "24:00"}]},
-                               {"effectiveDates": undefined, "daysOfWeek": {"days": ["tu", "we", "th"]}, "timesOfDay": [{"from": "00:00", "to": "24:00"}]},
+                               {"effectiveDates": undefined, "daysOfWeek": {"days": ["tu", "we", "th"]}, "timesOfDay": undefined},
                                {"effectiveDates": undefined, "daysOfWeek": {"days": ["fr"]}, "timesOfDay": [{"from": "00:00", "to": "17:00"}]}]],
     ])("getTimeSpansFromDaysOverlapSyntax('%s')", (description, expected) => {
         const result = rpaToRegulations.getTimeSpansFromDaysOverlapSyntax(description);

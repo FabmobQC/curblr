@@ -300,7 +300,7 @@ function getTimeSpansFromDaysOverlapSyntax(description, effectiveDates) {
         timeSpans.push({
             "effectiveDates": effectiveDates,
             "daysOfWeek": {"days": days.slice(1, days.length-1)},
-            "timesOfDay": [{"from": "00:00", "to": "24:00"}]
+            "timesOfDay": undefined // equivalent to [{"from": "00:00", "to": "24:00"}]
         });
     }
 
