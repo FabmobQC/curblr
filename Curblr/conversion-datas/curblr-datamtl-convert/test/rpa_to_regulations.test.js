@@ -96,38 +96,38 @@ describe("getMaxStay", () => {
     });
 });
 
-describe("getUserClass", () => {
+describe("getUserClasses", () => {
     test.each([
         [
             "\\P RESERVE HANDICAPES 09h30-21h",
-            {"classes": ["handicapes"]}
+            [{"classes": ["handicapes"]}]
         ],
         [
             "\\P EXCEPTE HANDICAPES 10h-20h 21 JUIN AU 1 SEPT.",
-            {"classes": ["handicapes"]}
+            [{"classes": ["handicapes"]}]
         ],
         [
             "\\P 04h-05h 16h30-23h30 EXCEPTE SERVICES ET CANTINES COMMUNAUTAIRES AUTORISÉS",
-            {"classes": [ 'services', 'cantines communautaires autorisés' ]}
+            [{"classes": ["services", "cantines communautaires autorisés"]}]
         ],
         [
             "P RESERVE 21h-08h VEHICULES MUNIS D'UN PERMIS S3R",
-            {"classes": ["vehicules munis d'un permis s3r"]}
+            [{"classes": ["vehicules munis d'un permis s3r"]}]
         ],
         [
             "P RESERVE AUTOBUS TOURISTIQUE - AIRE D'ATTENTE 60 min de 8h-18h ET 2H de 18h-24h",
-            {"classes": ['autobus touristique']}],
+            [{"classes": ["autobus touristique"]}]],
         [
             "P RESER. CLIENT + DETENT. PERMIS RUE ETROITE",
-            {"classes": [ 'client', 'detent. permis rue etroite' ]}
+            [{"classes": ["client", "detent. permis rue etroite"]}]
         ],
         [
             "RÉSERVÉ AUTOBUS 15 JUIN au 1er SEPT.",
-            {"classes": ["autobus"]}
+            [{"classes": ["autobus"]}]
         ],
         [
             "P RÉSERVÉ SEULEMENT DÉTENTEURS DE PERMIS #",
-            {"classes": ["détenteurs de permis #"]}
+            [{"classes": ["détenteurs de permis #"]}]
         ],
         [
             "P 2H - 9H @ 16H EXCEPTÉ MARDI",

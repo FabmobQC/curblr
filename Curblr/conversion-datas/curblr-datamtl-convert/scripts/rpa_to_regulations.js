@@ -510,19 +510,17 @@ function getUserClasses(description) {
         return undefined;
     }
 
-    const userClasses = description
+    const classes = description
     .replace(rpaReg.userClassLeftTrimmer, "")
     .replace(rpaReg.userClassRightTrimmer, "")
     .toLowerCase()
     .split(/ (?:et|\+) /); // split on ' et ' or ' + '
 
-    if (userClasses[0] === "") {
+    if (classes[0] === "") {
         return undefined;
     }
 
-    return {
-        "classes": userClasses
-    }
+    return [{classes}]
 }
 
 function getRegulation(activity, maxStay, timeSpans, userClasses) {
