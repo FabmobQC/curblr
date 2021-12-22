@@ -605,6 +605,27 @@ describe("getTimeSpans", () => {
                 "daysOfWeek": {"days": ["th"]},
                 "timesOfDay": [{"from": "00:00", "to": "03:00"}]
             }]
+        ],
+        [
+            "PANONCEAU SAMEDI DIMANCHE", // test the final 'AU' in 'PANONCEAU'
+            [{
+                "effectiveDates": undefined,
+                "daysOfWeek": {"days": ["sa", "su"]},
+                "timesOfDay": undefined
+            }]
+        ],
+        [
+            "\\P RESERVE S3R 18h-23h LUN.AU VEN., 9h-23h SAM.ET DIM.", // Test 'LUN.AU VEN.' and 'SAM.ET DIM.'
+            [{
+                "effectiveDates": undefined,
+                "daysOfWeek": {"days":["mo","tu","we","th","fr"]},
+                "timesOfDay": [{"from":"18:00","to":"23:00"}]
+            },
+            {
+                "effectiveDates": undefined,
+                "daysOfWeek": {"days":["sa","su"]},
+                "timesOfDay": [{"from":"09:00","to":"23:00"}]
+            }]
         ]
     ])("getTimeSpans('%s')", (description, expected) => {
         const result = rpaToRegulations.getTimeSpans(description);
