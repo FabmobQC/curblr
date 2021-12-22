@@ -145,20 +145,23 @@ function handlePanonceauWithTimeSpans(mtlPotWithPannonceau) {
             elem.unmmanaged = elem.unmmanaged.filter(
                 val => {
                     if (
-                        val.RULES.some(
+                        val.RULES !== undefined
+                        && val.RULES.some(
                             rule => (
                                 !rule.priorityCategory
-                                && rule.timeSpans
+                                && rule.timeSpans !== undefined
                             )
                         )
                     ) {
                         pannonceau = val;
                         elem.managed.push(pannonceau);
-
                         regulations = elem.tempRules.slice(-1)[0];
-                        regulations.timeSpans.forEach(ts => {
-                            ts = {...ts, ...pannonceau.RULES[0].timeSpans}
-                        })
+                        if(regulations.timeSpans) {
+                            regulations.timeSpans.forEach(ts => {
+                                ts = {...ts, ...pannonceau.RULES[0].timeSpans}
+                            })
+                            
+                        }
                         
                         return false;
                     }
