@@ -499,6 +499,14 @@ describe("getTimeSpans", () => {
             }]
         ],
         [
+            "9H À 17H",
+            [{
+              "effectiveDates": undefined,
+              "daysOfWeek": undefined,
+              "timesOfDay": [{ "from": "09:00", "to": "17:00"}]
+            }]
+        ],
+        [
             "LUN MER VEN",
             [{
               "effectiveDates": undefined,
@@ -604,10 +612,163 @@ describe("getTimeSpans", () => {
     })
 });
 
-/* describe("getRegulations", () => {
+describe("getRegulations", () => {
     test.each([
-
+        [
+            "PANONCEAU FLECHE A GAUCHE",
+            undefined
+        ],
+        [
+            "07h-09h30 LUN. AU VEN.",
+            [{
+                "rule": {
+                    "activity": "no parking",
+                    "maxStay": undefined,
+                    "priorityCategory": "3"
+                },
+                "userClasses": undefined,
+                "timeSpans": [{
+                    "effectiveDates": undefined,
+                    "daysOfWeek": {"days":["mo","tu","we","th","fr"]},
+                    "timesOfDay": [{"from":"07:00","to":"09:30"}]
+                }]
+            }]
+        ],
+        [
+            "\\P 07h-09h LUNDI JEUDI 1 MARS AU 1 DEC.",
+            [{
+                "rule": {
+                    "activity": "no parking",
+                    "maxStay": undefined,
+                    "priorityCategory": "3"
+                },
+                "userClasses": undefined,
+                "timeSpans": [{
+                    "effectiveDates": [{"from":"03-01","to":"12-01"}],
+                    "daysOfWeek": {"days":["mo","th"]},
+                    "timesOfDay": [{"from":"07:00","to":"09:00"}]
+                }]
+            }]
+        ],
+        [
+            "P 04h 06h-18h LUN A VEN",
+            [{
+                "rule":{
+                    "activity": "parking",
+                    "maxStay": 240,
+                    "priorityCategory": "3"
+                },
+                "userClasses": undefined,
+                "timeSpans": [{
+                    "effectiveDates": undefined,
+                    "daysOfWeek": {"days":["mo","tu","we","th","fr"]},
+                    "timesOfDay": [{"from":"06:00","to":"18:00"}]
+                }]
+            }]
+        ],
+        [
+            "\\P EXCEPTE S3R",
+            [{
+                "rule":{
+                    "activity": "parking",
+                    "maxStay": undefined,
+                    "priorityCategory": "2"
+                },
+                "userClasses": [{"classes": ["s3r"]}],
+                "timeSpans": undefined
+            },
+            {
+                "rule": {
+                    "activity": "no parking",
+                    "maxStay": undefined,
+                    "priorityCategory": "4"
+                },
+                "userClasses": undefined,
+                "timeSpans": undefined
+            }],
+        ],
+        [
+            "\\A EXCEPTE S3R",
+            [{
+                "rule":{
+                    "activity": "parking",
+                    "maxStay": undefined,
+                    "priorityCategory": "2"
+                },
+                "userClasses": [{"classes": ["s3r"]}],
+                "timeSpans": undefined
+            },
+            {
+                "rule": {
+                    "activity": "no standing",
+                    "maxStay": undefined,
+                    "priorityCategory": "4"
+                },
+                "userClasses": undefined,
+                "timeSpans": undefined
+            }]
+        ],
+        [
+            "P RESERVE S3R",
+            [{
+                "rule":{
+                    "activity": "parking",
+                    "maxStay": undefined,
+                    "priorityCategory": "2"
+                },
+                "userClasses": [{"classes": ["s3r"]}],
+                "timeSpans": undefined
+            },
+            {
+                "rule": {
+                    "activity": "no parking",
+                    "maxStay": undefined,
+                    "priorityCategory": "4"
+                },
+                "userClasses": undefined,
+                "timeSpans": undefined
+            }]
+        ],
+        [
+            "P RESERVE S3R 2H",
+            [{
+                "rule":{
+                    "activity": "parking",
+                    "maxStay": 120,
+                    "priorityCategory": "2"
+                },
+                "userClasses": [{"classes": ["s3r"]}],
+                "timeSpans": undefined
+            },
+            {
+                "rule": {
+                    "activity": "no parking",
+                    "maxStay": undefined,
+                    "priorityCategory": "4"
+                },
+                "userClasses": undefined,
+                "timeSpans": undefined
+            }]
+        ],
+        [
+            "PANNONCEAU RESERVE S3R",
+            [{
+                "rule": undefined,
+                "userClasses": [{"classes": ["s3r"]}],
+                "timeSpans": undefined
+            },
+            {
+                "rule": {
+                    "activity": "no parking",
+                    "maxStay": undefined,
+                    "priorityCategory": "4"
+                },
+                "userClasses": undefined,
+                "timeSpans": undefined
+            }]
+        ],
     ])("getRegulations('%p')", (description, expected) => {
-
+        const result = rpaToRegulations.getRegulations(description);
+        expect(result).toStrictEqual(expected);
     })
-}); */
+});

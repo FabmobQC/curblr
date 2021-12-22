@@ -524,11 +524,13 @@ function getUserClasses(description) {
 }
 
 function getRegulation(activity, maxStay, timeSpans, userClasses) {
-    return {
-        "rule": getRule(activity, maxStay, timeSpans, userClasses), 
-        "userClasses": userClasses,
-        "timeSpans": timeSpans,
-    };
+    const rule = getRule(activity, maxStay, timeSpans, userClasses);
+
+    if (rule === undefined && timeSpans === undefined && userClasses === undefined) {
+        return undefined;
+    }
+
+    return {rule, userClasses, timeSpans};
 }
 
 // when there is more than one regulation
@@ -561,7 +563,10 @@ function getRegulations(description) {
 
     if (!userClasses) {
         const regulation = getRegulation(activity, maxStay, timeSpans, userClasses);
-        return [regulation];
+        if (regulation) {
+            return [regulation];
+        }
+        return undefined;
     }
     else {
         return getComplexRegulations(activity, maxStay, timeSpans, userClasses);
