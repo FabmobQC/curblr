@@ -777,15 +777,6 @@ describe("getRegulations", () => {
                 "rule": undefined,
                 "userClasses": [{"classes": ["s3r"]}],
                 "timeSpans": undefined
-            },
-            {
-                "rule": {
-                    "activity": "no parking",
-                    "maxStay": undefined,
-                    "priorityCategory": "4"
-                },
-                "userClasses": undefined,
-                "timeSpans": undefined
             }]
         ],
     ])("getRegulations('%p')", (description, expected) => {

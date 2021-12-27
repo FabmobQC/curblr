@@ -535,7 +535,12 @@ function getRegulation(activity, maxStay, timeSpans, userClasses) {
 
 // when there is more than one regulation
 function getComplexRegulations(activity, maxStay, timeSpans, userClasses) {
-    if (activity == "no parking" || activity == "no standing") {
+    if (activity == "panonceau") {
+        // We don't know yet what activity the userClass is modifying. We put no activity.
+        const regulationUserClass = getRegulation(undefined, maxStay, timeSpans, userClasses);
+        return [regulationUserClass];
+    }
+    else if (activity == "no parking" || activity == "no standing") {
         // The user class is allowed to be there at that moment
         const regulationUserClass = getRegulation("parking", maxStay, timeSpans, userClasses);
         // Others are not allowed at that moment
