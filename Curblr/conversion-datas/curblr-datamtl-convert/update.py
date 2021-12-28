@@ -125,9 +125,7 @@ def update(arronds, noms_sous_quartiers=[], specific_arrond="", data_sub_arronds
     print("done")
     
     print("create pannonceau... ", end="")
-    os.system(f"node scripts/pannonceau_to_regulations.js jsonpan {INTERMEDIARY_FOLDER_PATH}/agregate-pannonceau-rpa.json")
-    print(" ... ", end="")
-    os.system(f"node scripts/pannonceau_to_regulations.js jsonmtl {INTERMEDIARY_FOLDER_PATH}/agregate-signalisation.json")
+    os.system(f"node scripts/pannonceau_to_regulations.js")
     print("done")
    
     print("create subset... ", end="")

@@ -39,7 +39,7 @@ function convertToCurblr(rpaCode, input) {
     shstLocationStart = Math.round(shstLocationStart);
     shstLocationEnd = Math.round(shstLocationEnd);
 
-    if(rpaCode[id_rpa].regulations){
+    if(rpaCode[id_rpa] && rpaCode[id_rpa].regulations){
       var newTargetFeature = {
           ...feature,
           properties:{
