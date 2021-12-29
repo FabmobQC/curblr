@@ -1,0 +1,24 @@
+{
+    "desired_subsets": [
+        ["propertie", "plaza"],
+        ["propertie", "LaSalle"],
+        ["propertie", "Ville-Marie"],
+        ["propertie", "Côte-des-Neiges - Notre-Dame-de-Grâce"],
+        ["propertie", "Montréal-Nord"],
+        ["propertie", "Saint-Léonard"],
+        ["propertie", "Verdun"],
+        ["propertie", "L'Île-Bizard - Sainte-Geneviève"],
+        ["propertie", "Sud-Ouest"],
+        ["propertie", "Villeray - Saint-Michel - Parc-Extension"],
+        ["propertie", "Anjou"],
+        ["propertie", "Lachine"],
+        ["propertie", "Plateau-Mont-Royal"],
+        ["propertie", "Rivière-des-Prairies - Pointe-aux-Trembles"],
+        ["propertie", "Rosemont - La Petite-Patrie"],
+        ["propertie", "Mercier - Hochelaga-Maisonneuve"],
+        ["propertie", "Pierrefonds - Roxboro"],
+        ["propertie", "Outremont"],
+        ["propertie", "Ahuntsic - Cartierville"],
+        ["propertie", "Saint-Laurent"]
+    ]
+}

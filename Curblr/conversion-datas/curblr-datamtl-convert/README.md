@@ -2,7 +2,7 @@
 
 
 ## Préalables
-1. Installer yarn et utiliser node 12
+1. Installer yarn et utiliser node 12.13.0 (seule version à la fois compatible avec sharedstreet.js et turf.js)
 2. Installer les dépendances de Python
 > pip3 install -r requirements.txt
 3. Installer [SharedStreets](https://github.com/sharedstreets/sharedstreets-js). En cas de difficulté, builder [cette version](https://github.com/idillon-sfl/sharedstreets-js/tree/make-it-work-again) et exécuter à partir de bin/run.

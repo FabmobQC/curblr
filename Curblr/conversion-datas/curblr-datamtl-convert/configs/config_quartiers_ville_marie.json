@@ -1,0 +1,9 @@
+{
+    "desired_subsets": [
+        ["polygon", "DOWNTOWN"],
+        ["polygon", "QUARTIER DES SPECTACLES"],
+        ["polygon", "GAY VILLAGE"],
+        ["polygon", "OLD MONTREAL"],
+        ["polygon", "JEAN-DRAPEAU"]
+    ]
+}
