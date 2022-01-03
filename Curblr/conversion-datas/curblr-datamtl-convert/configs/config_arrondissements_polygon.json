@@ -34,5 +34,6 @@
         ["polygon", "Ville-Marie"],
         ["polygon", "Villeray-Saint-Michel-Parc-Extension"],
         ["polygon", "Westmount"]
-    ]
+    ],
+    "output_description": false
 }

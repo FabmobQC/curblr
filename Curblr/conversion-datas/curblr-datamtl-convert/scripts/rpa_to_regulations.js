@@ -587,8 +587,8 @@ function convert(rpaCodification) {
     for (const [key, rpaId] of Object.entries(rpaIds)) {
         const rpaInfo = {}
         rpaInfos[rpaId] = rpaInfo
-        rpaInfo.description = rpaDescriptions[key];
-        rpaInfo.code = rpaCodes[key];
+        rpaInfo.DESCRIPTION_RPA = rpaDescriptions[key];
+        rpaInfo.CODE_RPA = rpaCodes[key];
 
         const description = rpaDescriptions[key].toUpperCase();
 

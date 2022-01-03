@@ -8,7 +8,7 @@ INTERMEDIARY_FOLDER_PATH = "data/intermediary"
 OUTPUT_FOLDER_PATH = "data/output"
 DEFAULT_CONFIG_PATH = "configs/config_arrondissements_propertie.json" # arbitrary default
 
-def update(desired_subsets):
+def update(desired_subsets, output_description):
     print("Retrieve online data... ", end="")
     os.system(f"wget -N -P {INPUT_FOLDER_PATH} https://storage.googleapis.com/dx-montreal/resources/52cecff0-2644-4258-a2d1-0c4b3b116117/signalisation_stationnement.geojson")
     os.system(f"wget -N -P {INPUT_FOLDER_PATH} https://storage.googleapis.com/dx-montreal/resources/0795f422-b53b-41ca-89be-abc1069a88c9/signalisation-codification-rpa.json")
@@ -64,7 +64,7 @@ def update(desired_subsets):
         f_subset_joined_in = f_subset.replace(".geojson", "-segment.joined.geojson")
         f_subset_curblr_out = f"mtl-subset-segment-{name_for_filename}.curblr.json"
 
-        os.system(f"node scripts/segment_to_curblr.js {f_subset_joined_in} {OUTPUT_FOLDER_PATH}/{f_subset_curblr_out}")
+        os.system(f"node scripts/segment_to_curblr.js {f_subset_joined_in} {OUTPUT_FOLDER_PATH}/{f_subset_curblr_out} {output_description}")
 
         print(f"{f_subset_curblr_out} ", end="")
         print("done")

@@ -20,5 +20,6 @@
         ["propertie", "Outremont"],
         ["propertie", "Ahuntsic - Cartierville"],
         ["propertie", "Saint-Laurent"]
-    ]
+    ],
+    "output_description": false
 }

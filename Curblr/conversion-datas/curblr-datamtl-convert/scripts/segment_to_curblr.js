@@ -2,7 +2,7 @@
 
 const jsonHelper = require("./json_helper");
 
-function convertToCurblr(rpaCode, input) {
+function convertToCurblr(rpaCode, input, outputDescription) {
   const geojson = {};
   geojson['manifest'] = {
     "createdDate": (new Date()).toISOString(), // required
@@ -43,6 +43,7 @@ function convertToCurblr(rpaCode, input) {
       var newTargetFeature = {
           ...feature,
           properties:{
+            "DESCRIPTION_RPA": outputDescription ? rpaCode[id_rpa].DESCRIPTION_RPA : undefined,
             location:{
               shstRefId,
               sideOfStreet,
@@ -63,6 +64,7 @@ function convertToCurblr(rpaCode, input) {
 if (typeof require !== 'undefined' && require.main === module) {
   const inputFilename = process.argv[2];
   const outputFilename = process.argv[3];
+  const outputDescription = process.argv[4]
 
   const input = jsonHelper.load(inputFilename);
   let rpaCode = jsonHelper.load('data/intermediary/signalisation-codification-rpa_withRegulation.json');
@@ -70,7 +72,7 @@ if (typeof require !== 'undefined' && require.main === module) {
 
   rpaCode = {...rpaCode, ...agregateRpaCode};
 
-  const output = convertToCurblr(rpaCode, input);
+  const output = convertToCurblr(rpaCode, input, outputDescription);
   
   jsonHelper.write(outputFilename, output, false);
 }

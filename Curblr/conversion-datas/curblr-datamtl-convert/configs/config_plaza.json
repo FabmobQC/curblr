@@ -1,5 +1,6 @@
 {
     "desired_subsets": [
         ["polygon", "plaza"]
-    ]
+    ],
+    "output_description": false
 }
