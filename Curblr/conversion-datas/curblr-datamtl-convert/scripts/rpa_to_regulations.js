@@ -16,6 +16,23 @@ function containsIrrelevantExpression(description) {
     return irrelevantExpressions.some( expression => description.includes(expression));
 }
 
+function hasIrrelevantCode(codeRpa) {
+    // These are temporary orange panneaux for maintenance
+    return codeRpa.startsWith("EU");
+}
+
+function ignore(codeRpa, description) {
+    if (containsIrrelevantExpression(description)) {
+        return true;
+    }
+
+    if (hasIrrelevantCode(codeRpa)) {
+        return true;
+    }
+
+    return false
+}
+
 function getActivity(description, timeSpans, maxStay) {
     // if there is an explicit indication about the activity:
     if (description.includes("\\P ") || description.startsWith("/P ") || description.startsWith("STAT. INT. ") || description.startsWith("INTERDICTION DE STAT. ")) {
@@ -600,7 +617,7 @@ function convert(rpaCodification) {
 
         const description = rpaDescriptions[key].toUpperCase();
 
-        if (containsIrrelevantExpression(description)) {
+        if (ignore(rpaInfo.CODE_RPA, description)) {
             continue;
         }
 
