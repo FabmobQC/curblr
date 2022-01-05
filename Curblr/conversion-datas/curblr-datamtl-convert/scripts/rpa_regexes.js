@@ -50,7 +50,7 @@ const daysOfWeekIntervalStr = `(${anyDayOfWeekStr}\\s*${daysIntervalConnecterStr
 const daysOfWeekInterval = new RegExp(daysOfWeekIntervalStr, "ig");
 
 // Matches an enumeration of days
-const daysOfWeekEnumerationStr = `(?<!\\b${daysIntervalConnecterStr}\\s+)${anyDayOfWeekStr}(?!\\s*${daysIntervalConnecterStr})(\\s*(et\\s+)?${anyDayOfWeekStr})*`
+const daysOfWeekEnumerationStr = `(?<!\\b${daysIntervalConnecterStr}\\s+)${anyDayOfWeekStr}(?!\\s*${daysIntervalConnecterStr})(\\s*(et\\s+|-\\s*)?${anyDayOfWeekStr})*`
 const daysOfWeekEnumeration = new RegExp(daysOfWeekEnumerationStr, "ig");
 
 // Either an interval of days or an enumeration of days

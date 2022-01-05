@@ -151,6 +151,7 @@ describe("days", () => {
         ["LUN ET MAR MER", "LUN ET MAR MER"],
         ["LUN.ET VEN.", "LUN.ET VEN."],
         ["1h-2h LUN MAR", "LUN MAR"],
+        ["MARDI-JEUDI", "MARDI-JEUDI"],
         ["LUN A MER", undefined],
     ])("rpaReg.daysOfWeekEnumeration.exec('%s')?.[0]", (value, expected) => {
         rpaReg.daysOfWeekEnumeration.lastIndex = 0;
