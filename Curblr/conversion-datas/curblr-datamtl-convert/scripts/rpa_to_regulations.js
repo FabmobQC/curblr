@@ -478,31 +478,39 @@ function getTimeSpans(description) {
     return (cleanedTimeSpans.length != 0) ? cleanedTimeSpans : undefined;
 }
 
-function getPrioritycategory(maxStay, timeSpans, userClasses) {
-    // we assume regulations with userClasses are very specific, thus have high priority
+function getPriorityCategory(activity, userClasses) {
+
+    if (activity === undefined) {
+        return undefined;
+    }
+
     if (userClasses) {
-        return "2";
+        return `${activity} - userClasses`;
     }
 
-    // we assume regulations with timeSpans or maxStay are more specific than those without, thus have higher priority
-    if (maxStay || timeSpans) {
-        return "3";
+    if (activity == "parking") {
+        return "free parking";
     }
 
-    return "4";
+    return activity;
 }
 
-function getRule(activity, maxStay, timeSpans, userClasses) {
-    const priorityCategory = getPrioritycategory(maxStay, timeSpans, userClasses);
+function getRule(activity, maxStay, userClasses) {
 
-    const rule = { activity, maxStay, priorityCategory };
-
-    if (rule.activity === "panonceau") {
+    if (activity === "panonceau") {
         // keeping rule clean
-        rule.activity = undefined;
+        activity = undefined;
     }
 
-    return (rule.activity || rule.maxStay) ? rule : undefined;
+    if (activity === undefined && maxStay == undefined) {
+        return undefined;
+    }
+
+    return {
+        activity,
+        maxStay,
+        "priorityCategory": getPriorityCategory(activity, userClasses)
+    };
 }
 
 function getUserClasses(description) {
@@ -524,7 +532,7 @@ function getUserClasses(description) {
 }
 
 function getRegulation(activity, maxStay, timeSpans, userClasses) {
-    const rule = getRule(activity, maxStay, timeSpans, userClasses);
+    const rule = getRule(activity, maxStay, userClasses);
 
     if (rule === undefined && timeSpans === undefined && userClasses === undefined) {
         return undefined;

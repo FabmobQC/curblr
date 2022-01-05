@@ -10,11 +10,10 @@ function convertToCurblr(rpaCode, input, outputDescription) {
     "timeZone": "America/Toronto", // required
     "currency": "CAD", // required
     "priorityHierarchy": [
-      "1",
-      "2",
-      "3",
-      "4",
-      "5",
+      "parking - userClass",
+      "loading",
+      "no standing",
+      "no parking",
       "free parking"
     ], // required
     "authority": {

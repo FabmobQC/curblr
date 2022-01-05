@@ -1,5 +1,6 @@
 const jsonHelper = require('./json_helper');
 const curblrPrettifier = require("./curblr_prettifier");
+const rpaToRegulations = require("../scripts/rpa_to_regulations");
 
 function groupPanneauxByPoteau(panneaux) {
     return panneaux.reduce((acc,val) => {
@@ -226,11 +227,7 @@ function handleUserClasses(regulations, userClasses) {
         const originalActivity = originalRegulation.rule.activity;
         if (originalActivity == "no parking" || originalActivity == "no standing") {
             const derivedRegulation = {
-                "rule": {
-                    "activity": "parking",
-                    "maxStay": originalRegulation.rule.maxStay,
-                    "priorityCategory": "2"
-                },
+                "rule": rpaToRegulations.getRule("parking", originalRegulation.rule.maxStay, userClasses),
                 userClasses,
                 "timeSpans": originalRegulation.timeSpans
             }
@@ -239,20 +236,19 @@ function handleUserClasses(regulations, userClasses) {
             newRegulations.push(derivedRegulation);
             newRegulations.push(originalRegulation);
         } else {
-            // We recreate the regulation to keep a consistant attributes order
-            // when inserting userClasses
+            const newRule = rpaToRegulations.getRule(
+                originalRegulation.rule.activity, 
+                originalRegulation.rule.maxStay,
+                userClasses
+            );
             const modifiedRegulation = {
-                "rule": originalRegulation.rule,
+                "rule": newRule,
                 userClasses,
                 "timeSpans": originalRegulation.timeSpans
             };
-            originalRegulation.rule.priorityCategory = "2";
 
             const derivedRegulation = {
-                "rule": {
-                    "activity": "no parking",
-                    "priorityCategory": "3"
-                },
+                "rule": rpaToRegulations.getRule("no parking", undefined, undefined),
                 "timeSpans": originalRegulation.timeSpans
             };
 

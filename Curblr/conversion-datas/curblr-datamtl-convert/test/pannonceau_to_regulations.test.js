@@ -286,7 +286,7 @@ describe("fusionRegulations", () => {
                         "rule": {
                             "activity": "no parking",
                             "maxStay": 15,
-                            "priorityCategory": "3"
+                            "priorityCategory": "no parking"
                         },
                         "timeSpans": [{
                             "daysOfWeek": {"days": ["mo", "tu"]},
@@ -308,7 +308,7 @@ describe("fusionRegulations", () => {
                     "rule": {
                         "activity": "parking",
                         "maxStay": 15,
-                        "priorityCategory": "2"
+                        "priorityCategory": "parking - userClasses"
                     },
                     "userClasses": [{"classes": ["s3r"]}],
                     "timeSpans": [{
@@ -319,7 +319,7 @@ describe("fusionRegulations", () => {
                     "rule": {
                         "activity": "no parking",
                         "maxStay": undefined,
-                        "priorityCategory": "3"
+                        "priorityCategory": "no parking"
                     },
                     "timeSpans": [{
                         "daysOfWeek": {"days": ["mo", "tu"]},
@@ -341,7 +341,7 @@ describe("fusionRegulations", () => {
                         "rule": {
                             "activity": "parking",
                             "maxStay": 15,
-                            "priorityCategory": "3"
+                            "priorityCategory": "free parking"
                         },
                         "timeSpans": [{
                             "daysOfWeek": {"days": ["mo", "tu"]},
@@ -363,7 +363,7 @@ describe("fusionRegulations", () => {
                     "rule": {
                         "activity": "parking",
                         "maxStay": 15,
-                        "priorityCategory": "2"
+                        "priorityCategory": "parking - userClasses"
                     },
                     "userClasses": [{"classes": ["s3r"]}],
                     "timeSpans": [{
@@ -373,7 +373,8 @@ describe("fusionRegulations", () => {
                 {
                     "rule": {
                         "activity": "no parking",
-                        "priorityCategory": "3"
+                        "maxStay": undefined,
+                        "priorityCategory": "no parking"
                     },
                     "timeSpans": [{
                         "daysOfWeek": {"days": ["mo", "tu"]},
@@ -394,7 +395,7 @@ describe("fusionRegulations", () => {
                     "regulations": [{
                         "rule": {
                             "activity": "parking",
-                            "priorityCategory": "3"
+                            "priorityCategory": "free parking"
                         },
                         "timeSpans": [{
                             "daysOfWeek": {"days": ["mo", "tu"]},
@@ -423,7 +424,7 @@ describe("fusionRegulations", () => {
                     "rule": {
                         "activity": "parking",
                         "maxStay": 15,
-                        "priorityCategory": "2"
+                        "priorityCategory": "parking - userClasses"
                     },
                     "userClasses": [{"classes": ["s3r"]}],
                     "timeSpans": [{
@@ -433,7 +434,8 @@ describe("fusionRegulations", () => {
                 {
                     "rule": {
                         "activity": "no parking",
-                        "priorityCategory": "3"
+                        "maxStay": undefined,
+                        "priorityCategory": "no parking"
                     },
                     "timeSpans": [{
                         "daysOfWeek": {"days": ["mo", "tu"]},

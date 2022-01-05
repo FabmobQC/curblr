@@ -152,79 +152,47 @@ describe("getUserClasses", () => {
 describe("getRule", () => {
     test.each([
         [
-            "no parking", 10, [], {},
-            {"activity": "no parking", "maxStay": 10, "priorityCategory": "2"}
+            "parking", 10, {},
+            {"activity": "parking", "maxStay": 10, "priorityCategory": "parking - userClasses"}
         ],
         [
-            "no parking", 10, [], undefined,
-            {"activity": "no parking", "maxStay": 10, "priorityCategory": "3"}
+            "parking", 10, undefined,
+            {"activity": "parking", "maxStay": 10, "priorityCategory": "free parking"}
         ],
         [
-            "no parking", 10, undefined, {},
-            {"activity": "no parking", "maxStay": 10, "priorityCategory": "2"}
+            "parking", undefined, {},
+            {"activity": "parking", "maxStay": undefined, "priorityCategory": "parking - userClasses"}
         ],
         [
-            "no parking", 10, undefined, undefined,
-            {"activity": "no parking", "maxStay": 10, "priorityCategory": "3"}
+            "parking", undefined, undefined,
+            {"activity": "parking", "maxStay": undefined, "priorityCategory": "free parking"}
         ],
         [
-            "no parking", undefined, [], {},
-            {"activity": "no parking", "maxStay": undefined, "priorityCategory": "2"}
+            undefined, 10, {},
+            {"activity": undefined, "maxStay": 10, "priorityCategory": undefined}
         ],
         [
-            "no parking", undefined, [], undefined,
-            {"activity": "no parking", "maxStay": undefined, "priorityCategory": "3"}
+            undefined, 10, undefined,
+            {"activity": undefined, "maxStay": 10, "priorityCategory": undefined}
         ],
         [
-            "no parking", undefined, undefined, {},
-            {"activity": "no parking", "maxStay": undefined, "priorityCategory": "2"}
-        ],
-        [
-            "no parking", undefined, undefined, undefined,
-            {"activity": "no parking", "maxStay": undefined, "priorityCategory": "4"}
-        ],
-        [
-            undefined, 10, [], {},
-            {"activity": undefined, "maxStay": 10, "priorityCategory": "2"}
-        ],
-        [
-            undefined, 10, [], undefined,
-            {"activity": undefined, "maxStay": 10, "priorityCategory": "3"}
-        ],
-        [
-            undefined, 10, undefined, {},
-            {"activity": undefined, "maxStay": 10, "priorityCategory": "2"}
-        ],
-        [
-            undefined, 10, undefined, undefined,
-            {"activity": undefined, "maxStay": 10, "priorityCategory": "3"}
-        ],
-        [
-            undefined, undefined, [], {},
+            undefined, undefined, {},
             undefined
         ],
         [
-            undefined, undefined, [], undefined,
+            undefined, undefined, undefined,
             undefined
         ],
         [
-            undefined, undefined, undefined, {},
-            undefined
+            "panonceau", 10, {},
+            {"activity": undefined, "maxStay": 10, "priorityCategory": undefined}
         ],
         [
-            undefined, undefined, undefined, undefined,
+            "panonceau", undefined, undefined,
             undefined
         ],
-        [
-            "panonceau", 10, [], {},
-            {"activity": undefined, "maxStay": 10, "priorityCategory": "2"}
-        ],
-        [
-            "panonceau", undefined, undefined, undefined,
-            undefined
-        ],
-    ])("getRule(%p, %p, %p, %p)", (activity, maxStay, timespans, userClasses, expected) => {
-        const result = rpaToRegulations.getRule(activity, maxStay, timespans, userClasses);
+    ])("getRule(%p, %p, %p)", (activity, maxStay, userClasses, expected) => {
+        const result = rpaToRegulations.getRule(activity, maxStay, userClasses);
         expect(result).toStrictEqual(expected);
     });
 
@@ -645,7 +613,7 @@ describe("getRegulations", () => {
                 "rule": {
                     "activity": "no parking",
                     "maxStay": undefined,
-                    "priorityCategory": "3"
+                    "priorityCategory": "no parking"
                 },
                 "userClasses": undefined,
                 "timeSpans": [{
@@ -661,7 +629,7 @@ describe("getRegulations", () => {
                 "rule": {
                     "activity": "no parking",
                     "maxStay": undefined,
-                    "priorityCategory": "3"
+                    "priorityCategory": "no parking"
                 },
                 "userClasses": undefined,
                 "timeSpans": [{
@@ -677,7 +645,7 @@ describe("getRegulations", () => {
                 "rule":{
                     "activity": "parking",
                     "maxStay": 240,
-                    "priorityCategory": "3"
+                    "priorityCategory": "free parking"
                 },
                 "userClasses": undefined,
                 "timeSpans": [{
@@ -693,7 +661,7 @@ describe("getRegulations", () => {
                 "rule":{
                     "activity": "parking",
                     "maxStay": undefined,
-                    "priorityCategory": "2"
+                    "priorityCategory": "parking - userClasses"
                 },
                 "userClasses": [{"classes": ["s3r"]}],
                 "timeSpans": undefined
@@ -702,7 +670,7 @@ describe("getRegulations", () => {
                 "rule": {
                     "activity": "no parking",
                     "maxStay": undefined,
-                    "priorityCategory": "4"
+                    "priorityCategory": "no parking"
                 },
                 "userClasses": undefined,
                 "timeSpans": undefined
@@ -714,7 +682,7 @@ describe("getRegulations", () => {
                 "rule":{
                     "activity": "parking",
                     "maxStay": undefined,
-                    "priorityCategory": "2"
+                    "priorityCategory": "parking - userClasses"
                 },
                 "userClasses": [{"classes": ["s3r"]}],
                 "timeSpans": undefined
@@ -723,7 +691,7 @@ describe("getRegulations", () => {
                 "rule": {
                     "activity": "no standing",
                     "maxStay": undefined,
-                    "priorityCategory": "4"
+                    "priorityCategory": "no standing"
                 },
                 "userClasses": undefined,
                 "timeSpans": undefined
@@ -735,7 +703,7 @@ describe("getRegulations", () => {
                 "rule":{
                     "activity": "parking",
                     "maxStay": undefined,
-                    "priorityCategory": "2"
+                    "priorityCategory": "parking - userClasses"
                 },
                 "userClasses": [{"classes": ["s3r"]}],
                 "timeSpans": undefined
@@ -744,7 +712,7 @@ describe("getRegulations", () => {
                 "rule": {
                     "activity": "no parking",
                     "maxStay": undefined,
-                    "priorityCategory": "4"
+                    "priorityCategory": "no parking"
                 },
                 "userClasses": undefined,
                 "timeSpans": undefined
@@ -756,7 +724,7 @@ describe("getRegulations", () => {
                 "rule":{
                     "activity": "parking",
                     "maxStay": 120,
-                    "priorityCategory": "2"
+                    "priorityCategory": "parking - userClasses"
                 },
                 "userClasses": [{"classes": ["s3r"]}],
                 "timeSpans": undefined
@@ -765,7 +733,7 @@ describe("getRegulations", () => {
                 "rule": {
                     "activity": "no parking",
                     "maxStay": undefined,
-                    "priorityCategory": "4"
+                    "priorityCategory": "no parking"
                 },
                 "userClasses": undefined,
                 "timeSpans": undefined
