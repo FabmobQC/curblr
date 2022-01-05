@@ -139,7 +139,7 @@ const dayOfMonthSlashedStr = "(\\d{2}/\\d{2})";
 const dayOfMonthSlashed = new RegExp(dayOfMonthSlashedStr, "ig");
 
 // regex will match any interval of days of the month, for which the day comes before the month
-const daysOfMonthIntervalDayFirstStr = `(${dayOfMonthDayFirstStr}\\s*(A|À|AU|ET|-)?\\s*${dayOfMonthDayFirstStr})`;
+const daysOfMonthIntervalDayFirstStr = `(\\b${dayOfMonthDayFirstStr}\\s*(A|À|AU|ET|-)?\\s*${dayOfMonthDayFirstStr})`;
 const daysOfMonthIntervalDayFirst = new RegExp(daysOfMonthIntervalDayFirstStr, "i");
 
 // regex will match any interval of days of the month, for which the day comes after the month

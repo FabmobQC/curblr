@@ -501,10 +501,12 @@ describe( "dates", () => {
     test.each([
         ["1 MARS 1 DEC", "1 MARS 1 DEC"],
         ["1 MARS - 1 DEC", "1 MARS - 1 DEC"],
+        ["1 MARS 1 DEC", "1 MARS 1 DEC"],
         ["1 MARS A 1 DEC", "1 MARS A 1 DEC"],
         ["1 MARS À 1 DEC", "1 MARS À 1 DEC"],
         ["1 MARS AU 1 DEC", "1 MARS AU 1 DEC"],
         ["1 AVRIL ET 1 DEC", "1 AVRIL ET 1 DEC"], // this is in data
+        ["\\P 08h30-09h30 MAR. 1 AVRIL AU 1 DEC.", "1 AVRIL AU 1 DEC."], // Not '30 MAR. 1 AVRIL'
         ["MAI", undefined],
         ["1 MARS TEST 1 DEC", undefined],
         ["MAI-JUIN", undefined],
