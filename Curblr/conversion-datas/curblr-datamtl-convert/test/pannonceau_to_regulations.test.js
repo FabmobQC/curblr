@@ -308,7 +308,7 @@ describe("fusionRegulations", () => {
                     "rule": {
                         "activity": "parking",
                         "maxStay": 15,
-                        "priorityCategory": "parking - userClasses"
+                        "priorityCategory": "free parking - userClasses"
                     },
                     "userClasses": [{"classes": ["s3r"]}],
                     "timeSpans": [{
@@ -363,7 +363,7 @@ describe("fusionRegulations", () => {
                     "rule": {
                         "activity": "parking",
                         "maxStay": 15,
-                        "priorityCategory": "parking - userClasses"
+                        "priorityCategory": "free parking - userClasses"
                     },
                     "userClasses": [{"classes": ["s3r"]}],
                     "timeSpans": [{
@@ -424,7 +424,7 @@ describe("fusionRegulations", () => {
                     "rule": {
                         "activity": "parking",
                         "maxStay": 15,
-                        "priorityCategory": "parking - userClasses"
+                        "priorityCategory": "free parking - userClasses"
                     },
                     "userClasses": [{"classes": ["s3r"]}],
                     "timeSpans": [{

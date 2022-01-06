@@ -14,6 +14,7 @@ function convertToCurblr(rpaCode, input, outputDescription) {
       "loading",
       "no standing",
       "no parking",
+      "free parking - maxStay",
       "free parking"
     ], // required
     "authority": {

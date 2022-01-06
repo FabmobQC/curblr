@@ -495,20 +495,26 @@ function getTimeSpans(description) {
     return (cleanedTimeSpans.length != 0) ? cleanedTimeSpans : undefined;
 }
 
-function getPriorityCategory(activity, userClasses) {
+function getPriorityCategory(activity, maxStay, userClasses) {
 
     if (activity === undefined) {
         return undefined;
     }
 
-    if (userClasses) {
-        return `${activity} - userClasses`;
-    }
-
     if (activity == "parking") {
-        return "free parking";
-    }
+        let priorityCategory = "free parking";
 
+        if (userClasses) {
+            return `${priorityCategory} - userClasses`;
+        }
+        
+        if (maxStay) {
+            return `${priorityCategory} - maxStay`;
+        }
+    
+        return priorityCategory;
+    }
+    
     return activity;
 }
 
@@ -526,7 +532,7 @@ function getRule(activity, maxStay, userClasses) {
     return {
         activity,
         maxStay,
-        "priorityCategory": getPriorityCategory(activity, userClasses)
+        "priorityCategory": getPriorityCategory(activity, maxStay, userClasses)
     };
 }
 

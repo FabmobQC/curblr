@@ -153,15 +153,15 @@ describe("getRule", () => {
     test.each([
         [
             "parking", 10, {},
-            {"activity": "parking", "maxStay": 10, "priorityCategory": "parking - userClasses"}
+            {"activity": "parking", "maxStay": 10, "priorityCategory": "free parking - userClasses"}
         ],
         [
             "parking", 10, undefined,
-            {"activity": "parking", "maxStay": 10, "priorityCategory": "free parking"}
+            {"activity": "parking", "maxStay": 10, "priorityCategory": "free parking - maxStay"}
         ],
         [
             "parking", undefined, {},
-            {"activity": "parking", "maxStay": undefined, "priorityCategory": "parking - userClasses"}
+            {"activity": "parking", "maxStay": undefined, "priorityCategory": "free parking - userClasses"}
         ],
         [
             "parking", undefined, undefined,
@@ -645,7 +645,7 @@ describe("getRegulations", () => {
                 "rule":{
                     "activity": "parking",
                     "maxStay": 240,
-                    "priorityCategory": "free parking"
+                    "priorityCategory": "free parking - maxStay"
                 },
                 "userClasses": undefined,
                 "timeSpans": [{
@@ -661,7 +661,7 @@ describe("getRegulations", () => {
                 "rule":{
                     "activity": "parking",
                     "maxStay": undefined,
-                    "priorityCategory": "parking - userClasses"
+                    "priorityCategory": "free parking - userClasses"
                 },
                 "userClasses": [{"classes": ["s3r"]}],
                 "timeSpans": undefined
@@ -682,7 +682,7 @@ describe("getRegulations", () => {
                 "rule":{
                     "activity": "parking",
                     "maxStay": undefined,
-                    "priorityCategory": "parking - userClasses"
+                    "priorityCategory": "free parking - userClasses"
                 },
                 "userClasses": [{"classes": ["s3r"]}],
                 "timeSpans": undefined
@@ -703,7 +703,7 @@ describe("getRegulations", () => {
                 "rule":{
                     "activity": "parking",
                     "maxStay": undefined,
-                    "priorityCategory": "parking - userClasses"
+                    "priorityCategory": "free parking - userClasses"
                 },
                 "userClasses": [{"classes": ["s3r"]}],
                 "timeSpans": undefined
@@ -724,7 +724,7 @@ describe("getRegulations", () => {
                 "rule":{
                     "activity": "parking",
                     "maxStay": 120,
-                    "priorityCategory": "parking - userClasses"
+                    "priorityCategory": "free parking - userClasses"
                 },
                 "userClasses": [{"classes": ["s3r"]}],
                 "timeSpans": undefined
