@@ -671,7 +671,18 @@ describe("getTimeSpans", () => {
                     "timesOfDay": [{"from":"07:00","to":"17:00"}]
                 }
             ]
-        ]
+        ],
+        [
+            "09h-17h LUN. AU VEN. EXCEPTE 9h-17h LUNDI",
+            [
+                {
+                    "effectiveDates": undefined,
+                    "daysOfWeek": {"days":["tu","we","th","fr"]},
+                    "timesOfDay": [{"from":"09:00","to":"17:00"},]
+                },
+            ]
+        ],
+        
     ])("exception123", (description, expected) => {
         const result = rpaToRegulations.getTimeSpans(description);
         expect(result).toStrictEqual(expected);

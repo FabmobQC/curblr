@@ -688,11 +688,13 @@ function handleExceptionTimeSpans(regularTimeSpans, exceptionTimeSpans) {
         // Handle the timesOfDay for the days on which the exception applies
         if (exceptionTimeSpan.timesOfDay != undefined) {
             const filteredTimesOfDay = filterOutExceptionTimesOfDay(regularTimeSpan.timesOfDay, exceptionTimeSpan.timesOfDay);
-            newTimeSpans.push({
-                "effectiveDates": exceptionEffectiveDates,
-                "daysOfWeek": exceptionTimeSpan.daysOfWeek,
-                "timesOfDay": filteredTimesOfDay
-            });
+            if (filteredTimesOfDay) {
+                newTimeSpans.push({
+                    "effectiveDates": exceptionEffectiveDates,
+                    "daysOfWeek": exceptionTimeSpan.daysOfWeek,
+                    "timesOfDay": filteredTimesOfDay
+                });
+            }
         }
     });
     return newTimeSpans;
@@ -936,4 +938,5 @@ module.exports = {
     getTimeSpansFromDaysOverlapSyntax,
     getUserClasses,
     getOppositeDates,
+    handleExceptionTimeSpans,
 };

@@ -278,6 +278,35 @@ function fusionRule(regulations, rule) {
     })
 }
 
+function fusionRegularRegulation(regulations, otherRegulation) {
+    if (otherRegulation.timeSpans !== undefined) {
+        fusionTimeSpans(regulations, otherRegulation.timeSpans);
+        regulations.timeSpans = curblrPrettifier.cleanTimeSpans(regulations.timeSpans);
+    }
+
+    handleUserClasses(regulations, otherRegulation.userClasses);
+
+    fusionRule(regulations, otherRegulation.rule)
+}
+
+function handleExceptionTimeSpans(regulations, exceptionTimeSpans) {
+    if (exceptionTimeSpans === undefined) {
+        return;
+    }
+    regulations.forEach((regulation) => {
+        const regularTimeSpans = regulation.timeSpans ? regulation.timeSpans : [];
+        const newTimeSpans = rpaToRegulations.handleExceptionTimeSpans(regularTimeSpans, exceptionTimeSpans);
+        regulation.timeSpans = curblrPrettifier.cleanTimeSpans(newTimeSpans);
+    });
+}
+
+function fusionExceptionRegulation(regulations, otherRegulation) {
+    handleExceptionTimeSpans(regulations, otherRegulation.timeSpans)
+
+    // Most of the time, 
+    handleUserClasses(regulations, otherRegulation.userClasses);
+}
+
 function fusionRegulations(aggregatedRpaWithRegulation) {
     const fusionedRpaWithRegulations = {};
 
@@ -301,14 +330,16 @@ function fusionRegulations(aggregatedRpaWithRegulation) {
             }
 
             panonceau.regulations.forEach((otherRegulation) => {
-                if (otherRegulation.timeSpans !== undefined) {
-                    fusionTimeSpans(regulations, otherRegulation.timeSpans);
-                    regulations.timeSpans = curblrPrettifier.cleanTimeSpans(regulations.timeSpans);
+                switch (otherRegulation.rule.activity) {
+                    case "panonceau":
+                        fusionRegularRegulation(regulations, otherRegulation);
+                        break;
+                    case "exception":
+                        fusionExceptionRegulation(regulations, otherRegulation);
+                        break;
+                    default:
+                        console.warn("otherRegulation.activity: unexpected case", panonceau.CODE_RPA);
                 }
-    
-                handleUserClasses(regulations, otherRegulation.userClasses);
-
-                fusionRule(regulations, otherRegulation.rule)
             })
         })
         

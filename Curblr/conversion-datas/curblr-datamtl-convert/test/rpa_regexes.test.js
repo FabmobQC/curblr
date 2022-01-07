@@ -741,6 +741,10 @@ describe("exception time", () => {
             "excepte 1h-2h 1er jan à 2 fev. 3h30 @ 4h mars 3 au avril 4",
             "excepte 1h-2h 1er jan à 2 fev. 3h30 @ 4h mars 3 au avril 4", // hopefully the data does not have anything such
         ],
+        [
+            "\\P EXCEPTE HANDICAPES 10h-20h 21 JUIN AU 1 SEPT.",
+            undefined
+        ],
         ["TEST", undefined],
     ])("rpaReg.exceptionSameDatesTimeSpan.exec('%s')", (value, expected) => {
         const result = rpaReg.getExecFirstMatch(rpaReg.exceptionSameDatesTimeSpan, value);

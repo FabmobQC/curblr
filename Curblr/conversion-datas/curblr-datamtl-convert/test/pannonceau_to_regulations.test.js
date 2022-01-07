@@ -295,6 +295,9 @@ describe("fusionRegulations", () => {
                 },
                 "panonceaux": [{
                     "regulations": [{
+                        "rule": {
+                            "activity": "panonceau"
+                        },
                         "userClasses": [{"classes": ["s3r"]}],
                     }]
                 }]
@@ -350,6 +353,9 @@ describe("fusionRegulations", () => {
                 },
                 "panonceaux": [{
                     "regulations": [{
+                        "rule": {
+                            "activity": "panonceau"
+                        },
                         "userClasses": [{"classes": ["s3r"]}],
                     }]
                 }]
@@ -404,12 +410,16 @@ describe("fusionRegulations", () => {
                 },
                 "panonceaux": [{
                     "regulations": [{
+                        "rule": {
+                            "activity": "panonceau"
+                        },
                         "userClasses": [{"classes": ["s3r"]}],
                     }]
                 },
                 {
                     "regulations": [{
                         "rule": {
+                            "activity": "panonceau",
                             "maxStay": 15
                         },
                     }]
@@ -441,6 +451,60 @@ describe("fusionRegulations", () => {
                         "daysOfWeek": {"days": ["mo", "tu"]},
                     }]
                 }]
+            }
+        }
+
+        const result
+            = panonceauToRegulations.fusionRegulations(aggregatedRpaWithRegulation, expected);
+        expect(result).toStrictEqual(expected);
+    });
+
+
+    test("fusion regulation with exception time", () => {
+        const aggregatedRpaWithRegulation = {
+            "0": {
+                "mainPanneau": {
+                    "regulations": [{
+                        "rule": {
+                            "activity": "no parking",
+                            "priorityCategory": "no parking"
+                        },
+                        "timeSpans": [{
+                            "daysOfWeek":{"days":["mo","tu","we","th","fr"]},
+                            "timesOfDay":[{"from":"09:00","to":"17:00"}]
+                        }],
+                    }]
+                },
+                "panonceaux": [{
+                    "regulations": [{
+                        "rule": {
+                            "activity": "exception"
+                        },
+                        "timeSpans": [{
+                            "daysOfWeek": {"days":["mo"]},
+                            "timesOfDay": [{"from":"09:00","to":"17:00"}]
+                        }],
+                    }]
+                }]
+            }
+        }
+        const expected = {
+            "0": {
+                "DESCRIPTION_RPA": undefined,
+                "CODE_RPA": undefined,
+                "regulations": [{
+                    "rule": {
+                        "activity": "no parking",
+                        // "maxStay": undefined, // ok, but should be there for concistency
+                        "priorityCategory": "no parking"
+                    },
+                    // "userClasses": undefined, // ok, but should be there for concistency
+                    "timeSpans": [{
+                        "effectiveDates": undefined,
+                        "daysOfWeek":{"days":["tu","we","th","fr"]},
+                        "timesOfDay":[{"from":"09:00","to":"17:00"}]
+                    }],
+                },]
             }
         }
 
