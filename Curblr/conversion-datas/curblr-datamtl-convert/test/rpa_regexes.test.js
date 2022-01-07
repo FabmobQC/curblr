@@ -173,6 +173,7 @@ describe( "times of week", () => {
         ["LUN 1h-2h MAR 3h-4h ", "LUN 1h-2h"],
         ["MARDI - 8H à 16H30", "MARDI - 8H à 16H30"],
         ["LUN MER VEN 8H À 12H - MAR JEU 13H À 17H", "LUN MER VEN 8H À 12H"],
+        ["MARDI DE 9H À 15H", "MARDI DE 9H À 15H"],
         ["1h-2h", undefined],
         ["LUN", undefined],
         ["1h-2h LUN", undefined],
@@ -591,6 +592,7 @@ describe("sameDatesTimeSpan", () => {
         ["1ER AVRIL - 30 NOV", "1ER AVRIL - 30 NOV"],
         ["P RÉSERVÉ LUN AU VEN 18 @ 8H ET SAM-DIM DÉTENTEURS DE PERMIS #11", "LUN AU VEN 18 @ 8H ET SAM-DIM "], // would be nicer without the space at the end, but whatever
         ["PANONCEAU SAMEDI DIMANCHE", "SAMEDI DIMANCHE"],
+        ["PANONCEAU EXCEPTE 9H-17H MERCREDI, DU 1ER AVRIL AU 1ER DECEMBRE", "EXCEPTE 9H-17H MERCREDI, DU 1ER AVRIL AU 1ER DECEMBRE"],
     ])("rpaReg.sameDatesTimeSpan.exec('%s')?.[0]", (value, expected) => {
         rpaReg.sameDatesTimeSpan.lastIndex = 0;
         const result = rpaReg.getExecFirstMatch(rpaReg.sameDatesTimeSpan, value);
@@ -740,8 +742,8 @@ describe("exception time", () => {
             "excepte 1h-2h 1er jan à 2 fev. 3h30 @ 4h mars 3 au avril 4", // hopefully the data does not have anything such
         ],
         ["TEST", undefined],
-    ])("rpaReg.exceptionTime.exec('%s')", (value, expected) => {
-        const result = rpaReg.getExecFirstMatch(rpaReg.exceptionTime, value);
+    ])("rpaReg.exceptionSameDatesTimeSpan.exec('%s')", (value, expected) => {
+        const result = rpaReg.getExecFirstMatch(rpaReg.exceptionSameDatesTimeSpan, value);
         expect(result).toBe(expected);
     });
 })

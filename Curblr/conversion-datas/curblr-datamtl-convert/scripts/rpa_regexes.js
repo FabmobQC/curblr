@@ -56,7 +56,7 @@ const daysOfWeekEnumeration = new RegExp(daysOfWeekEnumerationStr, "ig");
 // Either an interval of days or an enumeration of days
 const daysOfTimeSpanStr = `(${daysOfWeekIntervalStr}|${daysOfWeekEnumerationStr})`;
 
-const separatorDaysWithTimeStr = "(\\s*(-\\s*)?)"
+const separatorDaysWithTimeStr = "(\\s*(de\\s+|-\\s*)?)"
 
 // Matches week times, for which the days come before the times
 // days of week, followed by spaces and optionally a -, followed by time sequence
@@ -161,8 +161,8 @@ const daysOfMonthInterval = new RegExp(daysOfMonthIntervalStr, "i");
 // Match timespans that occur on the same date
 // weekTime alone, or daysOfMonthInterval alone, or weekTime with daysOfMonthInterval
 // For example, "1h-2h 1er jan à 2 fev. 3h30 @ 4h mars 3 au avril 4" will match on "1h-2h 1er jan à 2 fev." and "3h30 @ 4h mars 3 au avril 4"
-const sameDatesTimeSpanStr = `(((${weekTimeStr}\\s*([-,]|et)?\\s*)+${daysOfMonthIntervalStr}?)|((${weekTimeStr}\\s*([-,]|et)?\\s*)?${daysOfMonthIntervalStr}))`;
-const sameDatesTimeSpan = new RegExp(sameDatesTimeSpanStr, "ig");
+const regularSameDatesTimeSpanStr = `(((${weekTimeStr}\\s*([-,]|et)?(\\s*du)?\\s*)+${daysOfMonthIntervalStr}?)|((${weekTimeStr}\\s*([-,]|et)?\\s*)?${daysOfMonthIntervalStr}))`;
+const regularSameDatesTimeSpan = new RegExp(regularSameDatesTimeSpanStr, "ig");
 
 // maxStay with "min" is easy: "min" is always going to match with a maxStay.
 // maxStay with "h" is more complicated, because "h" could match with time spans.
@@ -216,12 +216,12 @@ const exceptionKeyword = new RegExp(exceptionKeywordStr, "i");
 
 // match time exception
 // ex: 'EXCEPTÉ MARDI'
-const exceptionTimeStr = `(${exceptionKeywordStr}(\\s+${sameDatesTimeSpanStr})*)`;
-const exceptionTime = new RegExp(exceptionTimeStr, "i");
+const exceptionSameDatesTimeSpanStr = `(${exceptionKeywordStr}(\\s+${regularSameDatesTimeSpanStr})+)`;
+const exceptionSameDatesTimeSpan = new RegExp(exceptionSameDatesTimeSpanStr, "i");
 
 // To determine whether the string contains a user class or not
 // Contains variation of 'réservé', or variation of word 'except' not followed by timespan
-const hasUserClassStr = `(${reservationKeywordStr}|${exceptionKeywordStr}(?!\\s+(${sameDatesTimeSpanStr}|periode)))`;
+const hasUserClassStr = `(${reservationKeywordStr}|${exceptionKeywordStr}(?!\\s+(${regularSameDatesTimeSpanStr}|periode)))`;
 const hasUserClass = new RegExp(hasUserClassStr, "i");
 
 // Match anything before a user class
@@ -230,15 +230,19 @@ const hasUserClass = new RegExp(hasUserClassStr, "i");
 // ex: '\\P RESERVE ', 'P RESERVE 21h-08h ', 'P 2H - 9H @ 16H EXCEPTÉ '
 const userClassIndicatorStr = `(${reservationKeywordStr}|${exceptionKeywordStr})`;
 const userClassLeftTrimmerExcludedWordsStr = `(seulement|en tout temps|${debarcadereStr})`;
-const userClassLeftTrimmerStr = `(.*${userClassIndicatorStr}(\\s+(${sameDatesTimeSpanStr}|${userClassLeftTrimmerExcludedWordsStr}|${basicMaxStayStr}))*\\s*)`;
+const userClassLeftTrimmerStr = `(.*${userClassIndicatorStr}(\\s+(${regularSameDatesTimeSpanStr}|${userClassLeftTrimmerExcludedWordsStr}|${basicMaxStayStr}))*\\s*)`;
 const userClassLeftTrimmer = new RegExp(userClassLeftTrimmerStr, "i");
 
 // Match anything after a user class
 // This is intented to trim the part of the string that comes after the user class.
 // This must be used after userClassLeftTrimmer
 // ex: ' ', ')', ' 09h30-21h', ' de 09h30 à 21h', ' 120min', ' 2h', ' EN TOUT TEMPS',
-const userClassRightTrimmerStr = `(\\s+$|(\\)|\\s+([-\\(]|((de\\s+)?${sameDatesTimeSpanStr})|${basicMaxStayStr}|EN TOUT TEMPS)).*)`;
+const userClassRightTrimmerStr = `(\\s+$|(\\)|\\s+([-\\(]|((de\\s+)?${regularSameDatesTimeSpanStr})|${basicMaxStayStr}|EN TOUT TEMPS)).*)`;
 const userClassRightTrimmer = new RegExp(userClassRightTrimmerStr, "i");
+
+// Either regularSameDatesTimeSpan or exceptionSameDatesTimeSpan
+const sameDatesTimeSpanStr = `(${regularSameDatesTimeSpanStr}|${exceptionSameDatesTimeSpanStr})`
+const sameDatesTimeSpan = new RegExp(sameDatesTimeSpanStr, "ig");
 
 // Equivalent to regex.exec(value)?.[0], which is not available in node 12
 function getExecFirstMatch(regex, value) {
@@ -280,12 +284,13 @@ module.exports = {
     weekTimeDaysOverlapDaySecond,
     weekTimeDaysOverlap,
     weekTime,
+    regularSameDatesTimeSpan,
+    exceptionSameDatesTimeSpan,
     sameDatesTimeSpan,
     debarcadere,
     reservationKeyword,
     exceptionKeyword,
     anyTimeIndication,
-    exceptionTime,
     hasUserClass,
     userClassLeftTrimmer,
     userClassRightTrimmer,

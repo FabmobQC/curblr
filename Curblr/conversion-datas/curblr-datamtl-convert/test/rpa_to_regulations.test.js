@@ -272,7 +272,7 @@ describe("getEffectiveDates", () => {
 
     test.each([
         ["MARS AU DEC", [{"from":"03-01","to":"12-31"}]],
-        ["AVR - NOVEMBRE", [{"from":"04-01","to":"11-31"}]]
+        ["AVR - NOVEMBRE", [{"from":"04-01","to":"11-30"}]]
     ])("getEffectiveDatesFromDayAbsentSyntax('%s')", (description, expected) => {
         const activity = rpaToRegulations.getEffectiveDatesFromDayAbsentSyntax(description);
         expect(activity).toStrictEqual(expected);
@@ -365,6 +365,8 @@ describe("getEffectiveDates", () => {
         const effectiveDates = rpaToRegulations.getEffectiveDates(description);
         expect(effectiveDates).toStrictEqual(expected);
     });
+
+
 });
 
 describe("getDaysOfWeek", () => {
@@ -437,6 +439,15 @@ describe("getDaysOfWeek", () => {
     ])("getDaysOfWeek('%s')", (description, expected) => {
         const daysOfWeek = rpaToRegulations.getDaysOfWeek(description);
         expect(daysOfWeek).toStrictEqual(expected);
+    });
+
+    test.each([
+        [[{"from":"01-01","to":"06-01"}], [{"from":"06-02","to":"12-31"}]],
+        [[{"from":"02-01","to":"12-30"}], [{"from":"12-31","to":"01-31"}]],
+        [[{"from":"01-15","to":"12-31"}], [{"from":"01-01","to":"01-14"}]]
+    ])("getOppositeDates('%s')", (description, expected) => {
+        const activity = rpaToRegulations.getOppositeDates(description);
+        expect(activity).toStrictEqual(expected);
     });
 });
 
@@ -594,8 +605,74 @@ describe("getTimeSpans", () => {
                 "daysOfWeek": {"days":["sa","su"]},
                 "timesOfDay": [{"from":"09:00","to":"23:00"}]
             }]
-        ]
+        ],
     ])("getTimeSpans('%s')", (description, expected) => {
+        const result = rpaToRegulations.getTimeSpans(description);
+        expect(result).toStrictEqual(expected);
+    })
+
+    test.each([
+        [
+            "9H @ 16H EXCEPTÉ MARDI",
+            [
+                {
+                    "effectiveDates": undefined,
+                    "daysOfWeek": {"days":["mo","we","th","fr","sa","su"]},
+                    "timesOfDay": [{"from":"09:00","to":"16:00"}]
+                }
+            ],
+        ],
+        [
+            "EXCEPTE 09H-17H LUN. ET JEU.",
+            [
+                {
+                    "effectiveDates": undefined,
+                    "daysOfWeek": {"days":["mo"]},
+                    "timesOfDay": [{"from":"00:00","to":"09:00"},{"from":"17:00","to":"24:00"}]
+                },
+                {
+                    "effectiveDates": undefined,
+                    "daysOfWeek": {"days":["tu","we"]},
+                    "timesOfDay": undefined
+                },
+                {
+                    "effectiveDates": undefined,
+                    "daysOfWeek": {"days":["th"]},
+                    "timesOfDay": [{"from":"00:00","to":"09:00"},{"from":"17:00","to":"24:00"}]
+                },
+                {
+                    "effectiveDates": undefined,
+                    "daysOfWeek": {"days":["fr","sa","su"]},
+                    "timesOfDay": undefined
+                },
+            ],
+        ],
+        [
+            "\\P 07h-17h LUN. AU VEN. EXCEPTE 9h-17h MERCREDI, DU 1ER AVRIL AU 1ER DECEMBRE",
+            [
+                {
+                    "effectiveDates": [{"from":"04-01","to":"12-01"}],
+                    "daysOfWeek": {"days":["mo","tu"]},
+                    "timesOfDay": [{"from":"07:00","to":"17:00"},]
+                },
+                {
+                    "effectiveDates": [{"from":"04-01","to":"12-01"}],
+                    "daysOfWeek": {"days":["we"]},
+                    "timesOfDay": [{"from":"07:00","to":"09:00"},]
+                },
+                {
+                    "effectiveDates": [{"from":"04-01","to":"12-01"}],
+                    "daysOfWeek": {"days":["th","fr"]},
+                    "timesOfDay": [{"from":"07:00","to":"17:00"},]
+                },
+                {
+                    "effectiveDates": [{"from":"12-02","to":"03-31"}],
+                    "daysOfWeek": {"days":["mo","tu","we","th","fr"]},
+                    "timesOfDay": [{"from":"07:00","to":"17:00"}]
+                }
+            ]
+        ]
+    ])("exception123", (description, expected) => {
         const result = rpaToRegulations.getTimeSpans(description);
         expect(result).toStrictEqual(expected);
     })

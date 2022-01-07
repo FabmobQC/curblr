@@ -131,6 +131,21 @@ function getEffectiveDatesFromDaySecondSyntax(dayOfMonthInterval) {
     }];
 }
 
+function getLastDayOfMonth(month) {
+    if (["04", "06", "09", "11"].includes(month)) {
+        return "30";
+    }
+    else if (month == "02") {
+        // It does not matters if the year is bissextile or not.
+        // What matters is to trigger that rule if the date is the 29 of February.
+        // Actually, this function could return 99 all the time and things would be fine.
+        return "29";
+    }
+    else {
+        return "31";
+    }
+}
+
 // Get effective dates for dates which the day is absent
 // ex: MARS - DEC 
 function getEffectiveDatesFromDayAbsentSyntax(dayOfMonthInterval) {
@@ -140,17 +155,7 @@ function getEffectiveDatesFromDayAbsentSyntax(dayOfMonthInterval) {
     const fromMonth = extractMonth(from);
     const toMonth = extractMonth(to);
 
-    const toDay = (() => {
-        if (["04", "06", "09", "01"].includes(toMonth)) {
-            return "30";
-        }
-        else if (toMonth == "02") {
-            return "28";
-        }
-        else {
-            return "31";
-        }
-    })();
+    const toDay = getLastDayOfMonth(toMonth);
 
     return [{
         "from": `${fromMonth}-01`,
@@ -460,12 +465,240 @@ function getTimeSpansFromUsualSyntax(description, effectiveDates) {
     return adjustTimesOfDayOrder(provisionalTimeSpan, description);
 }
 
+function addOneDayToDate(date) {
+    const [oriMonth, oriDay] = date.split("-");
+    const lastDayOfMonth = getLastDayOfMonth(oriMonth);
+
+    let newMonth = oriMonth;
+    let newDay;
+
+    if (oriDay == lastDayOfMonth) {
+        newDay = "01";
+        if (oriMonth == "12") {
+            newMonth = "01";
+        } else {
+            const newMonthInt = parseInt(oriMonth) + 1;
+            newMonth = newMonthInt.toString().padStart(2, '0');
+        }
+    }
+    else {
+        const newDayInt = parseInt(oriDay) + 1;
+        newDay = newDayInt.toString().padStart(2, '0');
+    }
+
+    return `${newMonth}-${newDay}`;
+}
+
+function substractOneDayToDate(date) {
+    const [oriMonth, oriDay] = date.split("-");
+
+    let newMonth = oriMonth;
+    let newDay;
+
+    if (oriDay == "01") {
+        if (oriMonth == "01") {
+            newMonth = "12";
+        } else {
+            const newMonthInt = parseInt(oriMonth) - 1;
+            newMonth = newMonthInt.toString().padStart(2, '0');
+        }
+        newDay = getLastDayOfMonth(newMonth);
+    }
+    else {
+        const newDayInt = parseInt(oriDay) - 1;
+        newDay = newDayInt.toString().padStart(2, '0');
+    }
+
+    return `${newMonth}-${newDay}`;
+}
+
+function getOppositeDates(effectiveDates) {
+    if (effectiveDates.length > 1) {
+        console.warn("getOppositeDates unhandled case: effectiveDates is larger than 1");
+    }
+
+    const dates = effectiveDates[0]
+    const oriFrom = dates.from;
+    const oriTo = dates.to;
+
+    const oppositeDate = {
+        "from": addOneDayToDate(oriTo),
+        "to": substractOneDayToDate(oriFrom)
+    }
+    return [oppositeDate];
+}
+
+function filterOutExceptionDaysOfWeek(originalDaysOfWeek, exceptionDaysOfWeek) {
+    if (exceptionDaysOfWeek === undefined) {
+        // This case is assumed not to be in data and has not been tested.
+        console.warn("filterOutExceptionDaysOfWeek unhandled case: exceptionDaysOfWeek is undefined")
+        // However, this might make it works:
+        exceptionDaysOfWeek = {"days":["mo", "tu", "we", "th", "fr", "sa", "su"]};
+    }
+    
+    let originalDays = ["mo", "tu", "we", "th", "fr", "sa", "su"];
+    if (originalDaysOfWeek) {
+        originalDays = originalDaysOfWeek.days;
+    }
+
+    const days = originalDays.filter((day) => !exceptionDaysOfWeek.days.includes(day));
+    return {days};
+}
+
+function filterOutExceptionTimesOfDay(originalTimesOfDay, exceptionTimesOfDay) {
+    if (exceptionTimesOfDay === undefined) {
+        // This case is assumed not to be in data
+        console.warn("filterOutExceptionTimesOfDay unhandled case: exceptionTimesOfDay is undefined");
+    }
+
+    if (exceptionTimesOfDay.length > 1) {
+        // This case is assumed not to be in data
+        console.warn("filterOutExceptionTimesOfDay unhandled case: exceptionTimesOfDay.length > 1");
+    }
+    const exceptionFrom = exceptionTimesOfDay[0].from;
+    const exceptionTo = exceptionTimesOfDay[0].to;
+    const filteredTimesOfDay = [];
+
+    if (originalTimesOfDay === undefined) {
+        originalTimesOfDay = [{"from":"00:00","to":"24:00"}];
+    }
+
+    originalTimesOfDay.forEach((originalTime) => {
+        // If the exception is entirely comprised into the excteption time
+        if (originalTime.from < exceptionFrom && originalTime.to > exceptionTo) {
+            filteredTimesOfDay.push(
+                {
+                    "from": originalTime.from,
+                    "to": exceptionFrom
+                },
+                {
+                    "from": exceptionTo,
+                    "to": originalTime.to
+                }
+            );
+        }
+
+        else if (originalTime.from < exceptionFrom) {
+            // If the original time is entirely before the exception time
+            if (originalTime.to < exceptionFrom) {
+                filteredTimesOfDay.push({
+                    "from": originalTime.from,
+                    "to": originalTime.to
+                });
+            }
+            // If the original time comprise solely the exception from
+            else {
+                filteredTimesOfDay.push({
+                    "from": originalTime.from,
+                    "to": exceptionFrom
+                });
+            }
+        }
+
+        else if (originalTime.to > exceptionTo) {
+            // If the original time is entirely after the exception time
+            if (originalTime.from > exceptionTo) {
+                filteredTimesOfDay.push({
+                    "from": originalTime.from,
+                    "to": originalTime.to
+                });
+            }
+            // If the original time comprise solely the exception to
+            else {
+                filteredTimesOfDay.push({
+                    "from": exceptionTo,
+                    "to": originalTime.to
+                });
+            }
+        }
+
+        // Otherwise the original time is enterily comprise into the exception
+    });
+
+    return filteredTimesOfDay.length > 0 ? filteredTimesOfDay : undefined;
+}
+
+
+function handleExceptionTimeSpans(regularTimeSpans, exceptionTimeSpans) {
+    if (exceptionTimeSpans.length == 0) {
+        return regularTimeSpans;
+    }
+    
+    const newTimeSpans = [];
+
+    if (regularTimeSpans.length == 0) {
+        // Adding an empty rule so we can apply exception on it
+        regularTimeSpans.push({})
+    }
+
+    regularTimeSpans.forEach((regularTimeSpan) => {
+        if (exceptionTimeSpans.length > 1) {
+            // This case is assumed not to be in data. Lets not lose time with it.
+            console.warn("handleExceptionTimeSpans unhandled case: exceptionTimeSpans.length > 1")
+        }
+        const exceptionTimeSpan = exceptionTimeSpans[0];
+
+        // Temporary value that will change if the exception has its own effectiveDates
+        let exceptionEffectiveDates = regularTimeSpans.effectiveDates;
+
+        if (exceptionTimeSpan.effectiveDates) {
+            if (regularTimeSpan.effectiveDates)  {
+                // This case is assumed not to be in data. Lets not lose time with it.
+                console.warn("handleExceptionTimeSpans unhandled case: Both have effectiveDates")
+            }
+            
+            exceptionEffectiveDates = exceptionTimeSpan.effectiveDates;
+            const oppositeDates = getOppositeDates(exceptionEffectiveDates);
+
+            // If the exception has effectiveDates, then the opposite dates keep the untouched regular timeSpan
+            const regularTimeSpanWithNewDates = {
+                "effectiveDates": oppositeDates,
+                "daysOfWeek": regularTimeSpan.daysOfWeek,
+                "timesOfDay": regularTimeSpan.timesOfDay
+            }
+            console.log("push1", regularTimeSpanWithNewDates)
+            newTimeSpans.push(regularTimeSpanWithNewDates);
+        }
+
+        // Handle the days for which the exception does not apply)
+        const untouchedDaysOFWeek = filterOutExceptionDaysOfWeek(regularTimeSpan.daysOfWeek, exceptionTimeSpan.daysOfWeek);
+        if (untouchedDaysOFWeek.days.length > 0) {
+            newTimeSpans.push({
+                "effectiveDates": exceptionEffectiveDates,
+                "daysOfWeek": untouchedDaysOFWeek,
+                "timesOfDay": regularTimeSpan.timesOfDay
+            });
+        }
+
+        // Handle the timesOfDay for the days on which the exception applies
+        if (exceptionTimeSpan.timesOfDay != undefined) {
+            const filteredTimesOfDay = filterOutExceptionTimesOfDay(regularTimeSpan.timesOfDay, exceptionTimeSpan.timesOfDay);
+            newTimeSpans.push({
+                "effectiveDates": exceptionEffectiveDates,
+                "daysOfWeek": exceptionTimeSpan.daysOfWeek,
+                "timesOfDay": filteredTimesOfDay
+            });
+        }
+    });
+    return newTimeSpans;
+}
+
 function getTimeSpans(description) {
-    const timeSpans = [];
+    const regularTimeSpans = [];
+    const exceptionTimeSpans = [];
+    let timeSpans = regularTimeSpans;
 
     let sameDatesTimeSpanDescription;
     rpaReg.sameDatesTimeSpan.lastIndex = 0;
     while (sameDatesTimeSpanDescription = rpaReg.getExecFirstMatch(rpaReg.sameDatesTimeSpan, description)) {
+
+        if (rpaReg.exceptionSameDatesTimeSpan.test(sameDatesTimeSpanDescription)) {
+            timeSpans = exceptionTimeSpans;
+        }
+        else {
+            timeSpans = regularTimeSpans;
+        }
+
         const effectiveDates = getEffectiveDates(sameDatesTimeSpanDescription);
         let timeSpanAdded = false;
         let timeSpanDescription;
@@ -490,6 +723,9 @@ function getTimeSpans(description) {
             timeSpans.push({"effectiveDates": effectiveDates});
         }
     }
+
+    timeSpans = handleExceptionTimeSpans(regularTimeSpans, exceptionTimeSpans);
+
     const cleanedTimeSpans = curblrPrettifier.cleanTimeSpans(timeSpans);
     
     return (cleanedTimeSpans.length != 0) ? cleanedTimeSpans : undefined;
@@ -666,4 +902,5 @@ module.exports = {
     getDaysOfWeekFromInterval,
     getTimeSpansFromDaysOverlapSyntax,
     getUserClasses,
+    getOppositeDates,
 };
