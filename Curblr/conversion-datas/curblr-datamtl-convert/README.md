@@ -2,9 +2,9 @@
 
 
 ## Préalables
-1. Installer yarn et utiliser node 12.13.0 (seule version à la fois compatible avec sharedstreet.js et turf.js)
-2. Installer les dépendances de Python
-> pip3 install -r requirements.txt
+1. Installer yarn
+2. utiliser node 12.13.0 (seule version à la fois compatible avec sharedstreet.js et turf.js)
+> nvm use 12.13.0
 3. Installer [SharedStreets](https://github.com/sharedstreets/sharedstreets-js). En cas de difficulté, builder [cette version](https://github.com/idillon-sfl/sharedstreets-js/tree/make-it-work-again) et exécuter à partir de bin/run.
 
 ## Exécuter
@@ -12,8 +12,10 @@
 > python3 update.py configs/config_plaza.json
 
 ## Exécuter les tests
-> cd tests
+> cd test # Il est nécessaire d'exécuter les tests à partir de ce dossier  
 > yarn test
+
+# Les sections suivantes n'ont pas été révisées et pourraient ne pas être à jour.
 
 ## Création d’un subset de données
 Afin de pouvoir tester rapidement les outils, la création d’un subset de donnée est nécessaire. Le script subset.js permet de faire cela. Il est possible de modifier la zone en indiquant la longitude et latitude encadrant la zone souhaitée dans le script. Attention, à faire un rectangle aligné au nord géographique et non au nord montréalais (environ 45° de différence).
