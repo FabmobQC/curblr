@@ -60,8 +60,8 @@ describe("getActivity", () => {
         [["DÉBARCADÈRE",  undefined, undefined], "loading"],
         [["DEBAR.",  undefined, undefined], "loading"],
         [["\\P 15h30 - 18h LUN À VEN EXCEPTE DEBARCADERE",  [], undefined], "no parking"], // uncertain. Maybe "DEBARCADERE" should be handled
-        [["PANONCEAU ",  undefined, undefined], "panonceau"],
-        [["PANNONCEAU",  undefined, undefined], "panonceau"],
+        [["PANONCEAU ",  undefined, undefined, true], "panonceau"],
+        [["PANNONCEAU",  undefined, undefined, true], "panonceau"],
         [["\\P",  undefined, undefined], "irrelevant"],
         [["/P",  undefined, undefined], "irrelevant"],
         [["STAT. INT.",  undefined, undefined], "irrelevant"],
@@ -185,7 +185,7 @@ describe("getRule", () => {
         ],
         [
             "panonceau", 10, {},
-            {"activity": undefined, "maxStay": 10, "priorityCategory": undefined}
+            {"activity": "panonceau", "maxStay": 10, "priorityCategory": undefined}
         ],
         [
             "panonceau", undefined, undefined,
@@ -819,9 +819,29 @@ describe("getRegulations", () => {
         [
             "PANNONCEAU RESERVE S3R",
             [{
-                "rule": undefined,
+                "rule": {
+                    "activity": "panonceau",
+                    "maxStay": undefined,
+                    "priorityCategory": undefined
+                },
                 "userClasses": [{"classes": ["s3r"]}],
                 "timeSpans": undefined
+            }]
+        ],
+        [
+            "PANONCEAU - EXCEPTE VENDREDI", // The exception must not be applied yet
+            [{
+                "rule": {
+                    "activity": "exception",
+                    "maxStay": undefined,
+                    "priorityCategory": undefined
+                },
+                "userClasses": undefined,
+                "timeSpans": [{
+                    "effectiveDates": undefined,
+                    "daysOfWeek": {"days":["fr"]},
+                    "timesOfDay": undefined
+                }]
             }]
         ],
     ])("getRegulations('%p')", (description, expected) => {

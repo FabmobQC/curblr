@@ -33,7 +33,27 @@ function ignore(codeRpa, description) {
     return false
 }
 
-function getActivity(description, timeSpans, maxStay) {
+function checkIsPanonceau(description) {
+    if (description.startsWith("PANONCEAU ") || description.startsWith("PANNONCEAU")) {
+        return true;
+    }
+    return false;
+}
+
+function getActivity(description, timeSpans, maxStay, isPanonceau) {
+
+    // Panonceau don't have an real activity of their own, since they modify a "main panneau"
+    // However, we will indicate in the activity that they are a panonceau
+    if (isPanonceau) {
+        if (rpaReg.exceptionKeyword.test(description)) {
+            // The panonceau indicates an exception.
+            // It can be an exception of time: "EXCEPTE LUNDI"
+            // Or an userClass exception: "EXCEPTE TAXIS"
+            return "exception";
+        }
+        return "panonceau"
+    }
+
     // if there is an explicit indication about the activity:
     if (description.includes("\\P ") || description.startsWith("/P ") || description.startsWith("STAT. INT. ") || description.startsWith("INTERDICTION DE STAT. ")) {
         return 'no parking';
@@ -41,10 +61,6 @@ function getActivity(description, timeSpans, maxStay) {
         return 'no standing';
     } else if (description.startsWith("P ")) {
         return'parking';
-    } else if (description.startsWith("PANONCEAU ") || description.startsWith("PANNONCEAU")) {
-        // Panonceaux modify an other sign.
-        // Therefore they do not have an activity of their own, but they nevertheless have the activity of the sign they modify.
-        return "panonceau";
     }
 
     if (maxStay) {
@@ -656,7 +672,6 @@ function handleExceptionTimeSpans(regularTimeSpans, exceptionTimeSpans) {
                 "daysOfWeek": regularTimeSpan.daysOfWeek,
                 "timesOfDay": regularTimeSpan.timesOfDay
             }
-            console.log("push1", regularTimeSpanWithNewDates)
             newTimeSpans.push(regularTimeSpanWithNewDates);
         }
 
@@ -683,7 +698,7 @@ function handleExceptionTimeSpans(regularTimeSpans, exceptionTimeSpans) {
     return newTimeSpans;
 }
 
-function getTimeSpans(description) {
+function getTimeSpans(description, isPanonceau) {
     const regularTimeSpans = [];
     const exceptionTimeSpans = [];
     let timeSpans = regularTimeSpans;
@@ -724,7 +739,19 @@ function getTimeSpans(description) {
         }
     }
 
-    timeSpans = handleExceptionTimeSpans(regularTimeSpans, exceptionTimeSpans);
+    if (isPanonceau) {
+        if (regularTimeSpans.length > 0) {
+            if (exceptionTimeSpans.length > 0) {
+                console.warn("getTimeSpans unhandled case: isPanonceau but both regularTimeSpans and exceptionTimeSpans have values.")
+            }
+            timeSpans = regularTimeSpans
+        }
+        else {
+            exceptionTimeSpans;
+        }
+    } else {
+        timeSpans = handleExceptionTimeSpans(regularTimeSpans, exceptionTimeSpans);
+    }
 
     const cleanedTimeSpans = curblrPrettifier.cleanTimeSpans(timeSpans);
     
@@ -733,7 +760,9 @@ function getTimeSpans(description) {
 
 function getPriorityCategory(activity, maxStay, userClasses) {
 
-    if (activity === undefined) {
+    if (activity === undefined
+        || activity == "panonceau"
+        || activity == "exception") {
         return undefined;
     }
 
@@ -754,14 +783,18 @@ function getPriorityCategory(activity, maxStay, userClasses) {
     return activity;
 }
 
-function getRule(activity, maxStay, userClasses) {
-
-    if (activity === "panonceau") {
-        // keeping rule clean
-        activity = undefined;
-    }
+function getRule(activity, maxStay, userClasses, timeSpans) {
 
     if (activity === undefined && maxStay == undefined) {
+        return undefined;
+    }
+
+    if (
+        (activity == "panonceau" || activity == "exception")
+        && maxStay == undefined
+        && userClasses == undefined
+        && timeSpans == undefined
+    ){
         return undefined;
     }
 
@@ -791,7 +824,7 @@ function getUserClasses(description) {
 }
 
 function getRegulation(activity, maxStay, timeSpans, userClasses) {
-    const rule = getRule(activity, maxStay, userClasses);
+    const rule = getRule(activity, maxStay, userClasses, timeSpans);
 
     if (rule === undefined && timeSpans === undefined && userClasses === undefined) {
         return undefined;
@@ -802,9 +835,8 @@ function getRegulation(activity, maxStay, timeSpans, userClasses) {
 
 // when there is more than one regulation
 function getComplexRegulations(activity, maxStay, timeSpans, userClasses) {
-    if (activity == "panonceau") {
-        // We don't know yet what activity the userClass is modifying. We put no activity.
-        const regulationUserClass = getRegulation(undefined, maxStay, timeSpans, userClasses);
+    if (activity == "panonceau" || activity == "exception") {
+        const regulationUserClass = getRegulation(activity, maxStay, timeSpans, userClasses);
         return [regulationUserClass];
     }
     else if (activity == "no parking" || activity == "no standing") {
@@ -823,9 +855,10 @@ function getComplexRegulations(activity, maxStay, timeSpans, userClasses) {
 }
 
 function getRegulations(description) {
-    const timeSpans = getTimeSpans(description);
+    const isPanonceau = checkIsPanonceau(description);
+    const timeSpans = getTimeSpans(description, isPanonceau);
     const maxStay = getMaxStay(description);
-    const activity = getActivity(description, timeSpans, maxStay);
+    const activity = getActivity(description, timeSpans, maxStay, isPanonceau);
     const userClasses = getUserClasses(description);
 
     if (activity === "irrelevant") {
